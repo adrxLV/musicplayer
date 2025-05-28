@@ -603,6 +603,12 @@ class MusicPlayer {
             contentTitle.textContent = 'Biblioteca de Músicas';
         }
         
+        // Hide playlist play button in header for library view
+        const playPlaylistBtn = document.getElementById('play-current-playlist-btn');
+        if (playPlaylistBtn) {
+            playPlaylistBtn.style.display = 'none';
+        }
+        
         this.currentPlaylist = [...this.songs];
         
         // Show filters if there are songs
@@ -616,7 +622,7 @@ class MusicPlayer {
         }
         
         this.renderMusicGrid();
-    }    showPlaylists() {
+    }showPlaylists() {
         const contentTitle = document.getElementById('content-title');
         if (contentTitle) {
             contentTitle.textContent = 'Suas Playlists';
@@ -629,6 +635,12 @@ class MusicPlayer {
         const filtersContainer = document.getElementById('filters-container');
         if (filtersContainer) {
             filtersContainer.style.display = 'none';
+        }
+        
+        // Hide playlist play button in header for playlists overview
+        const playPlaylistBtn = document.getElementById('play-current-playlist-btn');
+        if (playPlaylistBtn) {
+            playPlaylistBtn.style.display = 'none';
         }
         
         if (this.playlists.length === 0) {
@@ -691,6 +703,12 @@ class MusicPlayer {
             contentTitle.textContent = 'Músicas Favoritas';
         }
         
+        // Hide playlist play button in header for favorites view
+        const playPlaylistBtn = document.getElementById('play-current-playlist-btn');
+        if (playPlaylistBtn) {
+            playPlaylistBtn.style.display = 'none';
+        }
+        
         this.currentPlaylist = this.songs.filter(song => this.favorites.includes(song.url));
         
         // Hide filters for favorites view
@@ -746,13 +764,37 @@ class MusicPlayer {
                 this.showPlaylist(index);
             });
         });
-    }
-
-    showPlaylist(index) {
+    }    showPlaylist(index) {
         const playlist = this.playlists[index];
         if (!playlist) return;
 
-        document.getElementById('content-title').textContent = playlist.name;
+        const contentTitle = document.getElementById('content-title');
+        if (contentTitle) {
+            contentTitle.textContent = playlist.name;
+        }
+        
+        // Show playlist play button in header
+        const playPlaylistBtn = document.getElementById('play-current-playlist-btn');
+        if (playPlaylistBtn && playlist.songs.length > 0) {
+            playPlaylistBtn.style.display = 'inline-flex';
+            playPlaylistBtn.innerHTML = `<i class="fas fa-play"></i> Reproduzir Playlist`;
+            
+            // Remove existing listeners to avoid duplicates
+            const newBtn = playPlaylistBtn.cloneNode(true);
+            playPlaylistBtn.parentNode.replaceChild(newBtn, playPlaylistBtn);
+            
+            // Add new listener
+            newBtn.addEventListener('click', () => {
+                this.playPlaylist(index);
+            });
+        }
+        
+        // Hide filters for individual playlist view
+        const filtersContainer = document.getElementById('filters-container');
+        if (filtersContainer) {
+            filtersContainer.style.display = 'none';
+        }
+        
         this.currentPlaylist = playlist.songs;
         this.renderMusicGrid();
     }

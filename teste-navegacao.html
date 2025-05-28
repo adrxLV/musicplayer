@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Teste de Navegação</title>
+    <style>
+        .nav-link { 
+            margin: 10px; 
+            padding: 10px; 
+            background: #f0f0f0; 
+            cursor: pointer; 
+            display: inline-block; 
+        }
+        .nav-link.active { background: #007bff; color: white; }
+        .content-section { 
+            display: none; 
+            padding: 20px; 
+            border: 1px solid #ccc; 
+            margin: 20px 0; 
+        }
+        .content-section.active { display: block; }
+    </style>
+</head>
+<body>
+    <div>
+        <div class="nav-link active" data-view="library">Biblioteca</div>
+        <div class="nav-link" data-view="playlists">Playlists</div>
+        <div class="nav-link" data-view="favorites">Favoritas</div>
+        <div class="nav-link" data-view="settings">Configurações</div>
+    </div>
+    
+    <div id="library" class="content-section active">
+        <h2>Biblioteca de Músicas</h2>
+        <p>Esta é a página da biblioteca</p>
+    </div>
+    
+    <div id="playlists" class="content-section">
+        <h2>Suas Playlists</h2>
+        <p>Esta é a página de playlists</p>
+    </div>
+    
+    <div id="favorites" class="content-section">
+        <h2>Músicas Favoritas</h2>
+        <p>Esta é a página de favoritas</p>
+    </div>
+    
+    <div id="settings" class="content-section">
+        <h2>Configurações</h2>
+        <p>Esta é a página de configurações</p>
+    </div>
+
+    <script>
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                const view = e.target.dataset.view;
+                console.log('Clicou em:', view);
+                
+                // Remove active de todos
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+                
+                // Adiciona active ao clicado
+                e.target.classList.add('active');
+                document.getElementById(view).classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>

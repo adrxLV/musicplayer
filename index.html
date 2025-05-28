@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">    <title>Gruvbox Music Player</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="music-player">
+        <!-- Header -->
+        <header class="header">
+            <h1><i class="fas fa-music"></i> Gruvbox Player</h1>
+            <div class="header-controls">
+                <input type="file" id="folder-input" webkitdirectory multiple accept="audio/*" style="display: none;">
+                <button id="load-folder-btn" class="btn btn-primary">
+                    <i class="fas fa-folder-open"></i> Carregar Pasta
+                </button>
+                <button id="create-playlist-btn" class="btn btn-secondary">
+                    <i class="fas fa-plus"></i> Nova Playlist
+                </button>
+            </div>
+        </header>
+
+        <div id="main-content" class="main-content">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <nav class="nav-menu">
+                    <ul>
+                        <li><a href="#" data-view="library" class="nav-link active">
+                            <i class="fas fa-home"></i> Biblioteca
+                        </a></li>
+                        <li><a href="#" data-view="playlists" class="nav-link">
+                            <i class="fas fa-list"></i> Playlists
+                        </a></li>                        <li><a href="#" data-view="favorites" class="nav-link">
+                            <i class="fas fa-heart"></i> Favoritas
+                        </a></li>
+                        <li><a href="#" data-view="settings" class="nav-link">
+                            <i class="fas fa-cog"></i> Configurações
+                        </a></li>
+                    </ul>
+                </nav>
+                
+                <div class="playlists-section">
+                    <h3>Suas Playlists</h3>
+                    <div id="playlists-list">
+                        <!-- Playlists serão adicionadas dinamicamente -->
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Content Area -->
+            <main class="content">                <div class="content-header">
+                    <h2 id="content-title">Biblioteca de Músicas</h2>
+                    <div class="header-actions">
+                        <div class="filters" id="filters-container" style="display: none;">
+                            <select id="genre-filter">
+                                <option value="">Todos os Gêneros</option>
+                            </select>
+                            <select id="artist-filter">
+                                <option value="">Todos os Artistas</option>
+                            </select>
+                            <select id="year-filter">
+                                <option value="">Todos os Anos</option>
+                            </select>
+                        </div>
+                        <div class="search-bar">
+                            <input type="text" id="search-input" placeholder="Buscar músicas, artistas, álbuns...">
+                            <i class="fas fa-search"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="music-grid" id="music-grid">
+                    <!-- Músicas serão carregadas aqui -->
+                </div>
+            </main>
+        </div>
+
+        <!-- Player Controls -->
+        <div class="player-controls">
+            <div class="current-song">
+                <img id="current-album-art" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBmaWxsPSIjM0MzODM2Ii8+CjxwYXRoIGQ9Ik0yMCAzMEMxNC40NzcyIDMwIDEwIDI1LjUyMjggMTAgMjBDMTAgMTQuNDc3MiAxNC40NzcyIDEwIDIwIDEwQzI1LjUyMjggMTAgMzAgMTQuNDc3MiAzMCAyMEMzMCAyNS41MjI4IDI1LjUyMjggMzAgMjAgMzBaTTIwIDI1QzIyLjc2MTQgMjUgMjUgMjIuNzYxNCAyNSAyMEMyNSAxNy4yMzg2IDIyLjc2MTQgMTUgMjAgMTVDMTcuMjM4NiAxNSAxNSAxNy4yMzg2IDE1IDIwQzE1IDIyLjc2MTQgMTcuMjM4NiAyNSAyMCAyNVoiIGZpbGw9IiNGQkYxQzciLz4KPC9zdmc+" alt="Album Art">
+                <div class="song-info">
+                    <div id="current-title">Selecione uma música</div>
+                    <div id="current-artist">Artista</div>
+                </div>
+            </div>
+
+            <div class="playback-controls">
+                <button id="shuffle-btn" class="control-btn">
+                    <i class="fas fa-random"></i>
+                </button>
+                <button id="prev-btn" class="control-btn">
+                    <i class="fas fa-step-backward"></i>
+                </button>
+                <button id="play-pause-btn" class="control-btn play-btn">
+                    <i class="fas fa-play"></i>
+                </button>
+                <button id="next-btn" class="control-btn">
+                    <i class="fas fa-step-forward"></i>
+                </button>
+                <button id="repeat-btn" class="control-btn">
+                    <i class="fas fa-redo"></i>
+                </button>
+            </div>
+
+            <div class="volume-controls">
+                <button id="like-btn" class="control-btn">
+                    <i class="far fa-heart"></i>
+                </button>
+                <button id="volume-btn" class="control-btn">
+                    <i class="fas fa-volume-up"></i>
+                </button>
+                <input type="range" id="volume-slider" min="0" max="100" value="50" class="slider">
+            </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="progress-container">
+            <span id="current-time">0:00</span>
+            <div class="progress-bar">
+                <input type="range" id="progress-slider" min="0" max="100" value="0" class="slider">
+            </div>
+            <span id="duration">0:00</span>        </div>
+    </div>    <!-- Settings Page -->
+    <div id="settings-page" class="settings-page" style="display: none;">
+        <div class="settings-header">
+            <button id="back-to-library-btn" class="btn btn-secondary" style="position: absolute; top: 2rem; left: 2rem;">
+                <i class="fas fa-arrow-left"></i> Voltar
+            </button>
+            <h1>Configurações</h1>
+            <p>Personalize sua experiência musical</p>
+        </div>
+        
+        <div class="settings-content">
+            <div class="settings-section">
+                <h3><i class="fas fa-palette"></i> Aparência</h3>
+                
+                <div class="setting-item">
+                    <label for="theme-select">Tema:</label>
+                    <select id="theme-select" class="setting-select">
+                        <option value="dark">Escuro (Gruvbox Dark)</option>
+                        <option value="light">Claro (Gruvbox Light)</option>
+                    </select>
+                </div>
+                
+                <div class="setting-item">
+                    <label for="font-select">Fonte:</label>
+                    <select id="font-select" class="setting-select">
+                        <option value="sans-serif">Padrão (Sans-serif)</option>
+                        <option value="monospace">Monoespaçada (JetBrains Mono/Fira Code)</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="settings-section">
+                <h3><i class="fas fa-database"></i> Dados</h3>
+                
+                <div class="setting-item">
+                    <label>Pasta atual:</label>
+                    <span id="current-folder-path" class="folder-path">Nenhuma pasta carregada</span>
+                </div>
+                
+                <div class="setting-item">
+                    <button id="clear-data-btn" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Limpar Todos os Dados
+                    </button>
+                    <small class="setting-description">
+                        Remove todas as playlists, favoritos e músicas salvas
+                    </small>
+                </div>
+            </div>
+            
+            <div class="settings-section">
+                <h3><i class="fas fa-info-circle"></i> Sobre</h3>
+                <p>Music Player com tema Gruvbox</p>
+                <p>Versão 1.0 - Desenvolvido para reproduzir música local</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para criar playlist -->
+    <div id="playlist-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Criar Nova Playlist</h2>
+            <input type="text" id="playlist-name" placeholder="Nome da playlist">
+            <button id="create-playlist-confirm" class="btn btn-primary">Criar</button>
+        </div>
+    </div>    <!-- Modal para adicionar à playlist -->
+    <div id="add-to-playlist-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-add-playlist">&times;</span>
+            <h2>Adicionar à Playlist</h2>
+            <div id="available-playlists" class="available-playlists">
+                <!-- Playlists serão listadas aqui -->
+            </div>
+            <button id="add-to-new-playlist" class="btn btn-secondary">
+                <i class="fas fa-plus"></i> Criar Nova Playlist
+            </button>
+        </div>
+    </div>
+
+    <!-- Audio element -->
+    <audio id="audio-player" preload="none"></audio>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.5/jsmediatags.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

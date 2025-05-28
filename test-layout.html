@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de Layout - Gruvbox Music Player</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #282828;
+            color: #fbf1c7;
+        }
+        
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .test-section {
+            background: #3c3836;
+            border: 1px solid #504945;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .test-title {
+            color: #b8bb26;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        
+        .test-item {
+            margin-bottom: 10px;
+            padding: 10px;
+            background: #32302f;
+            border-radius: 4px;
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+        
+        .status.fixed {
+            background: #98971a;
+            color: #282828;
+        }
+        
+        .status.improved {
+            background: #d79921;
+            color: #282828;
+        }
+        
+        .btn {
+            background: #b8bb26;
+            color: #282828;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin: 5px;
+            font-weight: bold;
+        }
+        
+        .btn:hover {
+            background: #a8b022;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🎵 Teste de Layout - Music Player</h1>
+        
+        <div class="test-section">
+            <div class="test-title">✅ Problemas Resolvidos</div>
+            
+            <div class="test-item">
+                <strong>Layout da Sidebar</strong> <span class="status fixed">CORRIGIDO</span><br>
+                ➤ Corrigido display: 'block' → 'flex' na função switchView()<br>
+                ➤ O conteúdo agora aparece ao lado da sidebar, não abaixo
+            </div>
+            
+            <div class="test-item">
+                <strong>CSS Flexbox Melhorado</strong> <span class="status improved">MELHORADO</span><br>
+                ➤ Adicionado display: flex !important para maior robustez<br>
+                ➤ Adicionado flex-shrink: 0 na sidebar<br>
+                ➤ Adicionado min-width: 0 no conteúdo principal
+            </div>
+            
+            <div class="test-item">
+                <strong>Layout Responsivo</strong> <span class="status improved">MELHORADO</span><br>
+                ➤ Adicionadas regras para dispositivos móveis<br>
+                ➤ Sidebar muda para layout vertical em telas pequenas<br>
+                ➤ Controles se adaptam melhor ao mobile
+            </div>
+            
+            <div class="test-item">
+                <strong>Navegação entre Páginas</strong> <span class="status fixed">CORRIGIDO</span><br>
+                ➤ Biblioteca, Playlists, Favoritas, Configurações<br>
+                ➤ Botão "Voltar" nas configurações funcionando<br>
+                ➤ Layout consistente em todas as seções
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <div class="test-title">🔧 Melhorias Técnicas Aplicadas</div>
+            
+            <div class="test-item">
+                <strong>JavaScript:</strong><br>
+                • Corrigido switchView() para usar display: 'flex'<br>
+                • Mantida compatibilidade com página de configurações
+            </div>
+            
+            <div class="test-item">
+                <strong>CSS:</strong><br>
+                • Flexbox mais robusto com !important<br>
+                • Sidebar com largura fixa (250px) e flex-shrink: 0<br>
+                • Conteúdo principal responsivo com min-width: 0<br>
+                • Media queries para mobile (max-width: 768px)
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <div class="test-title">🧪 Como Testar</div>
+            
+            <div class="test-item">
+                1. <strong>Abra o music player</strong> - index.html<br>
+                2. <strong>Teste a navegação</strong> - Clique em Biblioteca, Playlists, Favoritas<br>
+                3. <strong>Teste as configurações</strong> - Clique em Configurações e no botão Voltar<br>
+                4. <strong>Verifique o layout</strong> - O conteúdo deve aparecer ao lado da sidebar<br>
+                5. <strong>Teste responsividade</strong> - Reduza a janela para simular mobile
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="index.html" class="btn">🎵 Abrir Music Player</a>
+            <a href="teste-navegacao.html" class="btn">🧪 Teste Simples</a>
+        </div>
+        
+        <div style="text-align: center; margin-top: 20px; color: #a89984; font-size: 0.9em;">
+            Layout corrigido e otimizado com tema Gruvbox ✨
+        </div>
+    </div>
+</body>
+</html>

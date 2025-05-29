@@ -417,6 +417,17 @@ body {
     color: var(--accent-red);
 }
 
+.action-btn:disabled {
+    color: var(--fg-muted);
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.action-btn:disabled:hover {
+    color: var(--fg-muted);
+    background-color: transparent;
+}
+
 /* Player Controls */
 .player-controls {
     background-color: var(--bg-medium);

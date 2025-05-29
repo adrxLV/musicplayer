@@ -14,20 +14,20 @@ class MusicPlayer {
         this.currentPlaylist = [];
         this.currentIndex = 0;
         this.isShuffled = false;
-        this.isRepeating = false;
-        this.currentView = 'library';
+        this.isRepeating = false;        this.currentView = 'library';
         this.selectedSongForPlaylist = null;
+        this.searchDebounceTimer = null;
         this.filters = {
             genre: '',
             artist: '',
             year: '',
             search: ''
         };
-        
-        this.initializeSettings();
+          this.initializeSettings();
         this.initializeEventListeners();
         this.loadPlaylists();
         this.loadSavedMusic();
+        this.enhanceAccessibility();
         this.updateUI();
     }
 
@@ -132,7 +132,7 @@ class MusicPlayer {
         });        // Search and filters
         document.getElementById('search-input').addEventListener('input', (e) => {
             this.filters.search = e.target.value;
-            this.applyFilters();
+            this.debouncedApplyFilters();
         });
 
         document.getElementById('genre-filter').addEventListener('change', (e) => {
@@ -143,9 +143,7 @@ class MusicPlayer {
         document.getElementById('artist-filter').addEventListener('change', (e) => {
             this.filters.artist = e.target.value;
             this.applyFilters();
-        });
-
-        document.getElementById('year-filter').addEventListener('change', (e) => {
+        });        document.getElementById('year-filter').addEventListener('change', (e) => {
             this.filters.year = e.target.value;
             this.applyFilters();
         });
@@ -158,11 +156,10 @@ class MusicPlayer {
         document.getElementById('create-playlist-confirm').addEventListener('click', () => {
             this.createPlaylist();
         });
-          document.querySelector('.close').addEventListener('click', () => {
+        
+        document.querySelector('.close').addEventListener('click', () => {
             this.hidePlaylistModal();
-        });
-
-        // Add to playlist modal
+        });        // Add to playlist modal
         document.querySelector('.close-add-playlist').addEventListener('click', () => {
             this.hideAddToPlaylistModal();
         });
@@ -170,7 +167,14 @@ class MusicPlayer {
         document.getElementById('add-to-new-playlist').addEventListener('click', () => {
             this.hideAddToPlaylistModal();
             this.showPlaylistModal();
-        });        // Audio events
+        });
+
+        // Help button
+        document.getElementById('help-btn').addEventListener('click', () => {
+            this.showKeyboardHelp();
+        });
+
+        // Audio events
         this.audio.addEventListener('loadedmetadata', () => {
             this.updateDuration();
         });
@@ -183,57 +187,135 @@ class MusicPlayer {
             this.nextSong();
         });
 
-        // Back to library button (for settings page)
+        this.audio.addEventListener('error', (e) => {
+            console.error('Audio error:', e);
+            this.showNotification('Erro ao reproduzir a música');
+            this.nextSong();
+        });
+
+        this.audio.addEventListener('loadstart', () => {
+            // Show loading indicator if needed
+        });
+
+        this.audio.addEventListener('canplay', () => {
+            // Hide loading indicator if needed
+        });// Back to library button (for settings page)
         document.addEventListener('click', (e) => {
             if (e.target && e.target.id === 'back-to-library-btn') {
                 this.switchView('library');
             }
-        });// Window events
+        });
+
+        // Window events
         window.addEventListener('click', (e) => {
             if (e.target === document.getElementById('playlist-modal')) {
                 this.hidePlaylistModal();
             }
             if (e.target === document.getElementById('add-to-playlist-modal')) {
                 this.hideAddToPlaylistModal();
-            }
+            }        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            this.handleKeyboardShortcuts(e);
+        });
+
+        // Focus management for accessibility
+        this.setupFocusManagement();
+
+        // Audio events
+        this.audio.addEventListener('loadedmetadata', () => {
+            this.updateDuration();
+        });
+        
+        this.audio.addEventListener('timeupdate', () => {
+            this.updateProgress();
+        });
+        
+        this.audio.addEventListener('ended', () => {
+            this.nextSong();
+        });
+
+        this.audio.addEventListener('error', (e) => {
+            console.error('Audio error:', e);
+            this.showNotification('Erro ao reproduzir a música');
+            this.nextSong();
+        });
+
+        this.audio.addEventListener('loadstart', () => {
+            // Show loading indicator if needed
+        });
+
+        this.audio.addEventListener('canplay', () => {
+            // Hide loading indicator if needed
         });
     }    async loadMusicFiles(files) {
-        const musicFiles = Array.from(files).filter(file => 
-            file.type.startsWith('audio/') || file.name.match(/\.(mp3|wav|ogg|m4a|flac)$/i)
-        );
+        try {
+            const musicFiles = Array.from(files).filter(file => 
+                file.type.startsWith('audio/') || file.name.match(/\.(mp3|wav|ogg|m4a|flac)$/i)
+            );
 
-        this.songs = [];
-        this.allSongs = [];
-        const loadingPromises = musicFiles.map(file => this.processAudioFile(file));
-        
-        // Show loading state
-        document.getElementById('music-grid').innerHTML = '<div class="empty-state"><i class="fas fa-spinner fa-spin"></i><h3>Carregando músicas...</h3></div>';
-        
-        await Promise.all(loadingPromises);
-        this.allSongs = [...this.songs];
-        this.currentPlaylist = [...this.songs];
-        
-        // Save to localStorage
-        const songsToSave = this.songs.map(song => ({
-            ...song,
-            file: null, // Don't save file object
-            url: null   // Don't save URL
-        }));
-        localStorage.setItem('savedSongs', JSON.stringify(songsToSave));
-          // Save folder path info
-        if (musicFiles.length > 0) {
-            this.settings.folderPath = musicFiles[0].webkitRelativePath.split('/')[0];
-            localStorage.setItem('settings', JSON.stringify(this.settings));
+            if (musicFiles.length === 0) {
+                this.showNotification('Nenhum arquivo de música encontrado na pasta selecionada');
+                return;
+            }
+
+            this.showLoadingState(`Carregando ${musicFiles.length} música(s)...`);
+            
+            this.songs = [];
+            this.allSongs = [];
+            
+            // Process files with error handling
+            const loadingPromises = musicFiles.map(async (file) => {
+                try {
+                    return await this.processAudioFile(file);
+                } catch (error) {
+                    this.handleFileError(error, file.name);
+                    return null;
+                }
+            });
+            
+            // Show initial loading state in grid
+            document.getElementById('music-grid').innerHTML = '<div class="empty-state"><i class="fas fa-spinner fa-spin"></i><h3>Carregando músicas...</h3></div>';
+            
+            const results = await Promise.all(loadingPromises);
+            const successfulSongs = results.filter(song => song !== null);
+            
+            this.allSongs = [...this.songs];
+            this.currentPlaylist = [...this.songs];
+            
+            // Check for large library and optimize if needed
+            this.optimizeForLargeLibrary();
+            
+            // Save to localStorage
+            const songsToSave = this.songs.map(song => ({
+                ...song,
+                file: null, // Don't save file object
+                url: null   // Don't save URL
+            }));
+            localStorage.setItem('savedSongs', JSON.stringify(songsToSave));
+            
+            // Save folder path info
+            if (musicFiles.length > 0) {
+                this.settings.folderPath = musicFiles[0].webkitRelativePath.split('/')[0];
+                localStorage.setItem('settings', JSON.stringify(this.settings));
+            }
+            
+            this.updateFilters();
+            
+            // Show filters if we have songs
+            if (this.songs.length > 0) {
+                document.getElementById('filters-container').style.display = 'flex';
+                this.showNotification(`✅ ${this.songs.length} música(s) carregada(s) com sucesso!`);
+            }
+            
+            this.hideLoadingState();
+            this.renderMusicGrid();
+            
+        } catch (error) {
+            this.hideLoadingState();
+            this.handleFileError(error, 'operação de carregamento');
         }
-        
-        this.updateFilters();
-        
-        // Show filters if we have songs
-        if (this.songs.length > 0) {
-            document.getElementById('filters-container').style.display = 'flex';
-        }
-        
-        this.renderMusicGrid();
     }
 
     async processAudioFile(file) {
@@ -330,11 +412,18 @@ class MusicPlayer {
         // Apply year filter
         if (this.filters.year) {
             filteredSongs = filteredSongs.filter(song => song.year === this.filters.year);
-        }
-
-        this.currentPlaylist = filteredSongs;
+        }        this.currentPlaylist = filteredSongs;
         this.renderMusicGrid();
-    }    clearFilters() {
+    }
+
+    debouncedApplyFilters() {
+        clearTimeout(this.searchDebounceTimer);
+        this.searchDebounceTimer = setTimeout(() => {
+            this.applyFilters();
+        }, 300);
+    }
+
+    clearFilters() {
         this.filters = { genre: '', artist: '', year: '', search: '' };
         document.getElementById('search-input').value = '';
         document.getElementById('genre-filter').value = '';
@@ -554,8 +643,7 @@ class MusicPlayer {
                 song.title.toLowerCase().includes(lowercaseQuery) ||
                 song.artist.toLowerCase().includes(lowercaseQuery) ||
                 song.album.toLowerCase().includes(lowercaseQuery)
-            );
-        }
+            );        }
         this.renderMusicGrid();
     }    switchView(view) {
         this.currentView = view;
@@ -642,15 +730,24 @@ class MusicPlayer {
         if (playPlaylistBtn) {
             playPlaylistBtn.style.display = 'none';
         }
-        
-        if (this.playlists.length === 0) {
+          if (this.playlists.length === 0) {
             grid.innerHTML = `
                 <div class="empty-state">
                     <i class="fas fa-list"></i>
                     <h3>Nenhuma playlist criada</h3>
                     <p>Crie sua primeira playlist para organizar suas músicas</p>
+                    <div class="playlist-actions">
+                        <button id="import-playlist-btn" class="playlist-import-btn">
+                            <i class="fas fa-file-import"></i> Importar Playlist
+                        </button>
+                    </div>
                 </div>
             `;
+            
+            // Add import event listener
+            document.getElementById('import-playlist-btn').addEventListener('click', () => {
+                this.importPlaylist();
+            });
             return;
         }
 
@@ -662,15 +759,24 @@ class MusicPlayer {
                 <div class="song-title">${playlist.name}</div>
                 <div class="song-artist">${playlist.songs.length} música(s)</div>
                 <div class="song-actions">
-                    <button class="action-btn play-playlist-btn" data-playlist-index="${index}">
+                    <button class="action-btn play-playlist-btn" data-playlist-index="${index}" title="Reproduzir playlist">
                         <i class="fas fa-play"></i>
                     </button>
-                    <button class="action-btn delete-playlist-btn" data-playlist-index="${index}">
+                    <button class="action-btn export-playlist-btn" data-playlist-index="${index}" title="Exportar playlist">
+                        <i class="fas fa-file-export"></i>
+                    </button>
+                    <button class="action-btn delete-playlist-btn" data-playlist-index="${index}" title="Excluir playlist">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
             </div>
-        `).join('');
+        `).join('') + `
+        <div class="playlist-actions" style="grid-column: 1 / -1; justify-content: center; margin-top: 2rem;">
+            <button id="import-playlist-btn" class="playlist-import-btn">
+                <i class="fas fa-file-import"></i> Importar Playlist
+            </button>
+        </div>
+        `;
 
         // Add event listeners
         grid.querySelectorAll('.playlist-card').forEach(card => {
@@ -680,13 +786,19 @@ class MusicPlayer {
                     this.showPlaylist(index);
                 }
             });
-        });
-
-        grid.querySelectorAll('.play-playlist-btn').forEach(btn => {
+        });        grid.querySelectorAll('.play-playlist-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 const index = parseInt(btn.dataset.playlistIndex);
                 this.playPlaylist(index);
+            });
+        });
+
+        grid.querySelectorAll('.export-playlist-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const index = parseInt(btn.dataset.playlistIndex);
+                this.exportPlaylist(index);
             });
         });
 
@@ -697,6 +809,14 @@ class MusicPlayer {
                 this.deletePlaylist(index);
             });
         });
+
+        // Add import event listener
+        const importBtn = document.getElementById('import-playlist-btn');
+        if (importBtn) {
+            importBtn.addEventListener('click', () => {
+                this.importPlaylist();
+            });
+        }
     }    showFavorites() {
         const contentTitle = document.getElementById('content-title');
         if (contentTitle) {
@@ -889,26 +1009,32 @@ class MusicPlayer {
         
         // Hide after 3 seconds
         setTimeout(() => {
-            notification.classList.remove('show');
-        }, 3000);
-    }
-
-    showSettings() {
+            notification.classList.remove('show');        }, 3000);
+    }    showSettings() {
         // Initialize settings form values
-        document.getElementById('theme-select').value = this.settings.theme;
-        document.getElementById('font-select').value = this.settings.font;
+        const themeSelect = document.getElementById('theme-select');
+        const fontSelect = document.getElementById('font-select');
+        
+        if (themeSelect) {
+            themeSelect.value = this.settings.theme;
+        }
+        if (fontSelect) {
+            fontSelect.value = this.settings.font;
+        }
         
         // Update folder path display
         const folderPathElement = document.getElementById('current-folder-path');
-        if (this.settings.folderPath) {
-            folderPathElement.textContent = this.settings.folderPath;
-        } else {
-            folderPathElement.textContent = 'Nenhuma pasta carregada';
+        if (folderPathElement) {
+            if (this.settings.folderPath) {
+                folderPathElement.textContent = this.settings.folderPath;
+            } else {
+                folderPathElement.textContent = 'Nenhuma pasta carregada';
+            }
         }
         
         // Set up event listeners for settings changes
         this.setupSettingsListeners();
-    }    setupSettingsListeners() {
+    }setupSettingsListeners() {
         // Theme selector
         const themeSelect = document.getElementById('theme-select');
         if (themeSelect && !themeSelect.hasAttribute('data-listener-added')) {
@@ -1062,6 +1188,501 @@ class MusicPlayer {
         // Initialize empty state
         if (this.songs.length === 0) {
             this.renderMusicGrid();
+        }
+    }
+
+    handleKeyboardShortcuts(e) {
+        // Don't handle shortcuts when user is typing in input fields
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
+            return;
+        }        // Prevent default for our handled shortcuts
+        const handled = [
+            'Space', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown',
+            'KeyM', 'KeyS', 'KeyR', 'KeyL', 'KeyF', 'KeyP', 'Escape',
+            'Digit1', 'Digit2', 'Digit3', 'Digit4', 'Slash'
+        ];
+
+        if (handled.includes(e.code)) {
+            e.preventDefault();
+        }
+
+        switch (e.code) {
+            case 'Space': // Play/Pause
+                this.togglePlayPause();
+                this.showNotification('⏯️ Play/Pause');
+                break;
+
+            case 'ArrowLeft': // Previous song
+                this.previousSong();
+                this.showNotification('⏮️ Música anterior');
+                break;
+
+            case 'ArrowRight': // Next song
+                this.nextSong();
+                this.showNotification('⏭️ Próxima música');
+                break;
+
+            case 'ArrowUp': // Volume up
+                const currentVolume = Math.round(this.audio.volume * 100);
+                const newVolumeUp = Math.min(100, currentVolume + 10);
+                this.setVolume(newVolumeUp);
+                document.getElementById('volume-slider').value = newVolumeUp;
+                this.showNotification(`🔊 Volume: ${newVolumeUp}%`);
+                break;
+
+            case 'ArrowDown': // Volume down
+                const currentVolumeDown = Math.round(this.audio.volume * 100);
+                const newVolumeDown = Math.max(0, currentVolumeDown - 10);
+                this.setVolume(newVolumeDown);
+                document.getElementById('volume-slider').value = newVolumeDown;
+                this.showNotification(`🔉 Volume: ${newVolumeDown}%`);
+                break;
+
+            case 'KeyM': // Mute/Unmute
+                this.toggleMute();
+                this.showNotification(this.audio.muted ? '🔇 Silenciado' : '🔊 Som ativado');
+                break;
+
+            case 'KeyS': // Shuffle
+                this.toggleShuffle();
+                this.showNotification(this.isShuffled ? '🔀 Aleatório ativado' : '🔀 Aleatório desativado');
+                break;
+
+            case 'KeyR': // Repeat
+                this.toggleRepeat();
+                this.showNotification(this.isRepeating ? '🔁 Repetir ativado' : '🔁 Repetir desativado');
+                break;
+
+            case 'KeyL': // Like current song
+                if (this.currentSong) {
+                    this.toggleLike();
+                    const isLiked = this.favorites.includes(this.currentSong.url);
+                    this.showNotification(isLiked ? '❤️ Adicionado aos favoritos' : '💔 Removido dos favoritos');
+                }
+                break;
+
+            case 'KeyF': // Focus search
+                const searchInput = document.getElementById('search-input');
+                if (searchInput && this.currentView === 'library') {
+                    searchInput.focus();
+                    this.showNotification('🔍 Buscar músicas');
+                }
+                break;
+
+            case 'KeyP': // Create new playlist
+                if (this.currentView === 'library' || this.currentView === 'playlists') {
+                    this.showPlaylistModal();
+                    this.showNotification('➕ Nova playlist');
+                }
+                break;
+
+            case 'Escape': // Close modals or clear search
+                if (document.getElementById('playlist-modal').style.display === 'block') {
+                    this.hidePlaylistModal();
+                } else if (document.getElementById('add-to-playlist-modal').style.display === 'block') {
+                    this.hideAddToPlaylistModal();
+                } else if (this.currentView === 'library') {
+                    this.clearSearch();
+                }
+                break;
+
+            case 'Digit1': // Switch to Library
+                this.switchView('library');
+                this.showNotification('📚 Biblioteca');
+                break;
+
+            case 'Digit2': // Switch to Playlists
+                this.switchView('playlists');
+                this.showNotification('📋 Playlists');
+                break;
+
+            case 'Digit3': // Switch to Favorites
+                this.switchView('favorites');
+                this.showNotification('❤️ Favoritas');
+                break;            case 'Digit4': // Switch to Settings
+                this.switchView('settings');
+                this.showNotification('⚙️ Configurações');
+                break;
+
+            case 'Slash': // Show keyboard help (? key)
+                if (e.shiftKey) { // Shift + / = ?
+                    this.showKeyboardHelp();
+                    this.showNotification('❓ Ajuda de atalhos');
+                }
+                break;
+        }
+    }
+
+    setupFocusManagement() {
+        // Add focus indicators for better accessibility
+        const focusableElements = [
+            '.nav-link', '.btn', '.music-card', '.control-btn', 
+            'input', 'select', '.action-btn', '.playlist-item'
+        ];
+
+        focusableElements.forEach(selector => {
+            document.addEventListener('focus', (e) => {
+                if (e.target.matches(selector)) {
+                    e.target.setAttribute('data-focused', 'true');
+                }
+            }, true);
+
+            document.addEventListener('blur', (e) => {
+                if (e.target.matches(selector)) {
+                    e.target.removeAttribute('data-focused');
+                }
+            }, true);
+        });
+    }
+
+    clearSearch() {
+        const searchInput = document.getElementById('search-input');
+        if (searchInput && searchInput.value) {
+            searchInput.value = '';
+            this.filters.search = '';
+            this.applyFilters();
+            this.showNotification('🗑️ Busca limpa');
+        }
+    }    showKeyboardHelp() {
+        const helpModal = document.createElement('div');
+        helpModal.id = 'keyboard-help-modal';
+        helpModal.className = 'keyboard-help-modal';
+        
+        helpModal.innerHTML = `
+            <div class="keyboard-help-content">
+                <div class="keyboard-help-header">
+                    <h3><i class="fas fa-keyboard"></i> Atalhos do Teclado</h3>
+                    <button class="keyboard-help-close close-help">&times;</button>
+                </div>
+                <div class="keyboard-shortcuts">
+                    <div class="shortcut-group">
+                        <h4><i class="fas fa-play"></i> Controles de Reprodução</h4>
+                        <div class="shortcut-list">
+                            <div class="shortcut-item">
+                                <span class="shortcut-key">Space</span>
+                                <span class="shortcut-description">Play/Pause</span>
+                            </div>
+                            <div class="shortcut-item">
+                                <span class="shortcut-key">←</span>
+                                <span class="shortcut-description">Música anterior</span>
+                            </div>
+                            <div class="shortcut-item">
+                                <span class="shortcut-key">→</span>
+                                <span class="shortcut-description">Próxima música</span>
+                            </div>
+                            <div class="shortcut-item">
+                                <span class="shortcut-key">↑</span>
+                                <span class="shortcut-description">Aumentar volume</span>
+                            </div>
+                            <div class="shortcut-item">
+                                <span class="shortcut-key">↓</span>
+                                <span class="shortcut-description">Diminuir volume</span>
+                            </div>
+                            <div class="shortcut-item">
+                                <span class="shortcut-key">M</span>
+                                <span class="shortcut-description">Silenciar/Ativar som</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="shortcut-group">
+                        <h4><i class="fas fa-cog"></i> Funcionalidades</h4>
+                        <div class="shortcut-list">
+                            <div class="shortcut-item">
+                                <span class="shortcut-key">S</span>
+                                <span class="shortcut-description">Alternar modo aleatório</span>
+                            </div>
+                            <div class="shortcut-item">
+                                <span class="shortcut-key">R</span>
+                                <span class="shortcut-description">Alternar repetição</span>
+                            </div>
+                            <div class="shortcut-item">
+                                <span class="shortcut-key">L</span>
+                                <span class="shortcut-description">Curtir música atual</span>
+                            </div>
+                            <div class="shortcut-item">
+                                <span class="shortcut-key">F</span>
+                                <span class="shortcut-description">Focar na busca</span>
+                            </div>
+                            <div class="shortcut-item">
+                                <span class="shortcut-key">P</span>
+                                <span class="shortcut-description">Nova playlist</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="shortcut-group">
+                        <h4><i class="fas fa-compass"></i> Navegação</h4>
+                        <div class="shortcut-list">
+                            <div class="shortcut-item">
+                                <span class="shortcut-key">1</span>
+                                <span class="shortcut-description">Biblioteca</span>
+                            </div>
+                            <div class="shortcut-item">
+                                <span class="shortcut-key">2</span>
+                                <span class="shortcut-description">Playlists</span>
+                            </div>
+                            <div class="shortcut-item">
+                                <span class="shortcut-key">3</span>
+                                <span class="shortcut-description">Favoritas</span>
+                            </div>
+                            <div class="shortcut-item">
+                                <span class="shortcut-key">4</span>
+                                <span class="shortcut-description">Configurações</span>
+                            </div>
+                            <div class="shortcut-item">
+                                <span class="shortcut-key">Esc</span>
+                                <span class="shortcut-description">Fechar modais/Limpar busca</span>
+                            </div>
+                            <div class="shortcut-item">
+                                <span class="shortcut-key">?</span>
+                                <span class="shortcut-description">Mostrar esta ajuda</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--bg-light);">
+                    <button class="btn btn-primary close-help">
+                        <i class="fas fa-check"></i> Entendi!
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(helpModal);
+        
+        // Close handlers
+        helpModal.querySelectorAll('.close-help').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.body.removeChild(helpModal);
+            });
+        });
+        
+        helpModal.addEventListener('click', (e) => {
+            if (e.target === helpModal) {
+                document.body.removeChild(helpModal);
+            }
+        });
+
+        // Close on Escape key
+        const escapeHandler = (e) => {
+            if (e.key === 'Escape') {
+                document.body.removeChild(helpModal);
+                document.removeEventListener('keydown', escapeHandler);
+            }
+        };
+        document.addEventListener('keydown', escapeHandler);
+    }
+
+    // Enhanced error handling for file operations
+    handleFileError(error, filename) {
+        console.error('File error:', error, filename);
+        let message = 'Erro ao processar arquivo';
+        
+        if (filename) {
+            message += `: ${filename}`;
+        }
+        
+        if (error.name === 'NotReadableError') {
+            message = 'Arquivo não pode ser lido. Verifique se o arquivo não está corrompido.';
+        } else if (error.name === 'SecurityError') {
+            message = 'Erro de segurança ao acessar o arquivo.';
+        } else if (error.name === 'NotFoundError') {
+            message = 'Arquivo não encontrado.';
+        }
+        
+        this.showNotification(message);
+    }
+
+    // Loading state management
+    showLoadingState(message = 'Carregando...') {
+        let loader = document.getElementById('loading-indicator');
+        if (!loader) {
+            loader = document.createElement('div');
+            loader.id = 'loading-indicator';
+            loader.className = 'loading-indicator';
+            document.body.appendChild(loader);
+        }
+        
+        loader.innerHTML = `
+            <div class="loading-content">
+                <div class="loading-spinner"></div>
+                <p>${message}</p>
+            </div>
+        `;
+        loader.style.display = 'flex';
+    }
+
+    hideLoadingState() {
+        const loader = document.getElementById('loading-indicator');
+        if (loader) {
+            loader.style.display = 'none';
+        }
+    }
+
+    // Performance optimization for large libraries
+    optimizeForLargeLibrary() {
+        if (this.allSongs.length > 1000) {
+            // Implement virtual scrolling for very large libraries
+            this.showNotification(`📚 Biblioteca grande detectada (${this.allSongs.length} músicas). Otimizando performance...`);
+            
+            // Limit initial render to first 100 songs
+            this.songs = this.allSongs.slice(0, 100);
+            this.currentPlaylist = [...this.songs];
+            
+            // Add load more functionality
+            this.addLoadMoreButton();
+        }
+    }
+
+    addLoadMoreButton() {
+        const grid = document.getElementById('music-grid');
+        if (!grid || this.songs.length >= this.allSongs.length) return;
+        
+        const loadMoreBtn = document.createElement('div');
+        loadMoreBtn.className = 'load-more-container';
+        loadMoreBtn.innerHTML = `
+            <button id="load-more-btn" class="btn btn-secondary">
+                <i class="fas fa-plus"></i> Carregar mais músicas (${this.allSongs.length - this.songs.length} restantes)
+            </button>
+        `;
+        
+        grid.appendChild(loadMoreBtn);
+        
+        document.getElementById('load-more-btn').addEventListener('click', () => {
+            const nextBatch = this.allSongs.slice(this.songs.length, this.songs.length + 100);
+            this.songs.push(...nextBatch);
+            this.applyFilters();
+            
+            if (this.songs.length >= this.allSongs.length) {
+                loadMoreBtn.remove();
+            } else {
+                document.getElementById('load-more-btn').innerHTML = `
+                    <i class="fas fa-plus"></i> Carregar mais músicas (${this.allSongs.length - this.songs.length} restantes)
+                `;
+            }
+        });
+    }
+
+    // Playlist export/import functionality
+    exportPlaylist(playlistIndex) {
+        const playlist = this.playlists[playlistIndex];
+        if (!playlist) return;
+        
+        const exportData = {
+            name: playlist.name,
+            songs: playlist.songs.map(song => ({
+                title: song.title,
+                artist: song.artist,
+                album: song.album,
+                duration: song.duration,
+                genre: song.genre,
+                year: song.year,
+                filename: song.file?.name || 'unknown'
+            })),
+            createdAt: playlist.createdAt,
+            exportedAt: new Date().toISOString()
+        };
+        
+        const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${playlist.name}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        this.showNotification(`📤 Playlist "${playlist.name}" exportada!`);
+    }
+
+    importPlaylist() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.json';
+        
+        input.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    // Validate import data
+                    if (!data.name || !Array.isArray(data.songs)) {
+                        throw new Error('Formato de arquivo inválido');
+                    }
+                    
+                    // Check if playlist name already exists
+                    let playlistName = data.name;
+                    let counter = 1;
+                    while (this.playlists.some(p => p.name === playlistName)) {
+                        playlistName = `${data.name} (${counter})`;
+                        counter++;
+                    }
+                    
+                    const newPlaylist = {
+                        name: playlistName,
+                        songs: [], // Songs will need to be matched manually
+                        createdAt: new Date().toISOString(),
+                        importedAt: new Date().toISOString(),
+                        originalData: data
+                    };
+                    
+                    this.playlists.push(newPlaylist);
+                    localStorage.setItem('playlists', JSON.stringify(this.playlists));
+                    this.loadPlaylists();
+                    
+                    this.showNotification(`📥 Playlist "${playlistName}" importada! As músicas precisam ser carregadas manualmente.`);
+                    
+                } catch (error) {
+                    this.handleFileError(error, file.name);
+                }
+            };
+            
+            reader.readAsText(file);
+        });
+        
+        input.click();
+    }
+
+    // Add ARIA labels and accessibility improvements
+    enhanceAccessibility() {
+        // Add ARIA labels to controls
+        const controls = {
+            'play-pause-btn': 'Reproduzir ou pausar música',
+            'prev-btn': 'Música anterior',
+            'next-btn': 'Próxima música',
+            'shuffle-btn': 'Alternar modo aleatório',
+            'repeat-btn': 'Alternar repetição',
+            'like-btn': 'Curtir música atual',
+            'volume-btn': 'Silenciar ou ativar som',
+            'volume-slider': 'Controle de volume',
+            'progress-slider': 'Progresso da música',
+            'search-input': 'Buscar músicas, artistas ou álbuns'
+        };
+        
+        Object.entries(controls).forEach(([id, label]) => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.setAttribute('aria-label', label);
+            }
+        });
+        
+        // Add role attributes
+        document.querySelector('.music-grid')?.setAttribute('role', 'grid');
+        document.querySelector('.nav-menu')?.setAttribute('role', 'navigation');
+        document.querySelector('.player-controls')?.setAttribute('role', 'toolbar');
+        
+        // Add live region for notifications
+        const notification = document.getElementById('notification');
+        if (notification) {
+            notification.setAttribute('role', 'status');
+            notification.setAttribute('aria-live', 'polite');
         }
     }
 }

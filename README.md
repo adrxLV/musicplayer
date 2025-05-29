@@ -77,7 +77,7 @@ Uses `localStorage` to save:
 
 ## 📄 License
 
-*This project is licensed under the **MIT License** - see the LICENSE file for details.*
+Open source for personal and educational use.
 
 ---
 

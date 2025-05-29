@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">    <title>Gruvbox Music Player</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gruvbox Music Player</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,12 +16,11 @@
         <header class="header">
             <h1><i class="fas fa-music"></i> Gruvbox Player</h1>
             <div class="header-controls">
-                <input type="file" id="folder-input" webkitdirectory multiple accept="audio/*" style="display: none;">
-                <button id="load-folder-btn" class="btn btn-primary">
-                    <i class="fas fa-folder-open"></i> Carregar Pasta
+                <input type="file" id="folder-input" webkitdirectory multiple accept="audio/*" style="display: none;">                <button id="load-folder-btn" class="btn btn-primary">
+                    <i class="fas fa-folder-open"></i> Load Folder
                 </button>
                 <button id="create-playlist-btn" class="btn btn-secondary">
-                    <i class="fas fa-plus"></i> Nova Playlist
+                    <i class="fas fa-plus"></i> New Playlist
                 </button>
             </div>
         </header>
@@ -28,26 +28,24 @@
         <div id="main-content" class="main-content">
             <!-- Sidebar -->
             <aside class="sidebar">
-                <nav class="nav-menu">
-                    <ul>
+                <nav class="nav-menu">                    <ul>
                         <li><a href="#" data-view="library" class="nav-link active">
-                            <i class="fas fa-home"></i> Biblioteca
+                            <i class="fas fa-home"></i> Library
                         </a></li>
                         <li><a href="#" data-view="playlists" class="nav-link">
                             <i class="fas fa-list"></i> Playlists
                         </a></li>                        <li><a href="#" data-view="favorites" class="nav-link">
-                            <i class="fas fa-heart"></i> Favoritas
+                            <i class="fas fa-heart"></i> Favorites
                         </a></li>
                         <li><a href="#" data-view="settings" class="nav-link">
-                            <i class="fas fa-cog"></i> Configurações
+                            <i class="fas fa-cog"></i> Settings
                         </a></li>
                     </ul>
                 </nav>
-                
-                <div class="playlists-section">
-                    <h3>Suas Playlists</h3>
+                  <div class="playlists-section">
+                    <h3>Your Playlists</h3>
                     <div id="playlists-list">
-                        <!-- Playlists serão adicionadas dinamicamente -->
+                        <!-- Playlists will be added dynamically -->
                     </div>
                 </div>
             </aside>
@@ -55,32 +53,29 @@
             <!-- Main Content Area -->
             <main class="content">                <div class="content-header">
                     <div class="content-title-section">
-                        <h2 id="content-title">Biblioteca de Músicas</h2>
+                        <h2 id="content-title">Music Library</h2>
                         <button id="play-current-playlist-btn" class="btn btn-primary" style="display: none;">
-                            <i class="fas fa-play"></i> Reproduzir Playlist
+                            <i class="fas fa-play"></i> Play Playlist
                         </button>
                     </div>
-                    <div class="header-actions">
-                        <div class="filters" id="filters-container" style="display: none;">
+                    <div class="header-actions">                        <div class="filters" id="filters-container" style="display: none;">
                             <select id="genre-filter">
-                                <option value="">Todos os Gêneros</option>
+                                <option value="">All Genres</option>
                             </select>
                             <select id="artist-filter">
-                                <option value="">Todos os Artistas</option>
+                                <option value="">All Artists</option>
                             </select>
                             <select id="year-filter">
-                                <option value="">Todos os Anos</option>
+                                <option value="">All Years</option>
                             </select>
                         </div>
                         <div class="search-bar">
-                            <input type="text" id="search-input" placeholder="Buscar músicas, artistas, álbuns...">
+                            <input type="text" id="search-input" placeholder="Search songs, artists, albums...">
                             <i class="fas fa-search"></i>
                         </div>
                     </div>
-                </div>
-
-                <div class="music-grid" id="music-grid">
-                    <!-- Músicas serão carregadas aqui -->
+                </div>                <div class="music-grid" id="music-grid">
+                    <!-- Music tracks will be loaded here -->
                 </div>
             </main>
         </div>
@@ -88,10 +83,9 @@
         <!-- Player Controls -->
         <div class="player-controls">
             <div class="current-song">
-                <img id="current-album-art" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBmaWxsPSIjM0MzODM2Ii8+CjxwYXRoIGQ9Ik0yMCAzMEMxNC40NzcyIDMwIDEwIDI1LjUyMjggMTAgMjBDMTAgMTQuNDc3MiAxNC40NzcyIDEwIDIwIDEwQzI1LjUyMjggMTAgMzAgMTQuNDc3MiAzMCAyMEMzMCAyNS41MjI4IDI1LjUyMjggMzAgMjAgMzBaTTIwIDI1QzIyLjc2MTQgMjUgMjUgMjIuNzYxNCAyNSAyMEMyNSAxNy4yMzg2IDIyLjc2MTQgMTUgMjAgMTVDMTcuMjM4NiAxNSAxNSAxNy4yMzg2IDE1IDIwQzE1IDIyLjc2MTQgMTcuMjM4NiAyNSAyMCAyNVoiIGZpbGw9IiNGQkYxQzciLz4KPC9zdmc+" alt="Album Art">
-                <div class="song-info">
-                    <div id="current-title">Selecione uma música</div>
-                    <div id="current-artist">Artista</div>
+                <img id="current-album-art" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBmaWxsPSIjM0MzODM2Ii8+CjxwYXRoIGQ9Ik0yMCAzMEMxNC40NzcyIDMwIDEwIDI1LjUyMjggMTAgMjBDMTAgMTQuNDc3MiAxNC40NzcyIDEwIDIwIDEwQzI1LjUyMjggMTAgMzAgMTQuNDc3MiAzMCAyMEMzMCAyNS41MjI4IDI1LjUyMjggMzAgMjAgMzBaTTIwIDI1QzIyLjc2MTQgMjUgMjUgMjIuNzYxNCAyNSAyMEMyNSAxNy4yMzg2IDIyLjc2MTQgMTUgMjAgMTVDMTcuMjM4NiAxNSAxNSAxNy4yMzg2IDE1IDIwQzE1IDIyLjc2MTQgMTcuMjM4NiAyNSAyMCAyNVoiIGZpbGw9IiNGQkYxQzciLz4KPC9zdmc+" alt="Album Art">                <div class="song-info">
+                    <div id="current-title">Select a song</div>
+                    <div id="current-artist">Artist</div>
                 </div>
             </div>
 
@@ -132,85 +126,77 @@
             </div>
             <span id="duration">0:00</span>        </div>
     </div>    <!-- Settings Page -->
-    <div id="settings-page" class="settings-page" style="display: none;">
-        <div class="settings-header">
+    <div id="settings-page" class="settings-page" style="display: none;">        <div class="settings-header">
             <button id="back-to-library-btn" class="btn btn-secondary" style="position: absolute; top: 2rem; left: 2rem;">
-                <i class="fas fa-arrow-left"></i> Voltar
+                <i class="fas fa-arrow-left"></i> Back
             </button>
-            <h1>Configurações</h1>
-            <p>Personalize sua experiência musical</p>
+            <h1>Settings</h1>
+            <p>Customize your music experience</p>
         </div>
         
-        <div class="settings-content">
-            <div class="settings-section">
-                <h3><i class="fas fa-palette"></i> Aparência</h3>
+        <div class="settings-content">            <div class="settings-section">
+                <h3><i class="fas fa-palette"></i> Appearance</h3>
                 
                 <div class="setting-item">
-                    <label for="theme-select">Tema:</label>
+                    <label for="theme-select">Theme:</label>
                     <select id="theme-select" class="setting-select">
-                        <option value="dark">Escuro (Gruvbox Dark)</option>
-                        <option value="light">Claro (Gruvbox Light)</option>
+                        <option value="dark">Dark (Gruvbox Dark)</option>
+                        <option value="light">Light (Gruvbox Light)</option>
                     </select>
                 </div>
                 
                 <div class="setting-item">
-                    <label for="font-select">Fonte:</label>
+                    <label for="font-select">Font:</label>
                     <select id="font-select" class="setting-select">
-                        <option value="sans-serif">Padrão (Sans-serif)</option>
-                        <option value="monospace">Monoespaçada (JetBrains Mono/Fira Code)</option>
+                        <option value="sans-serif">Default (Sans-serif)</option>
+                        <option value="monospace">Monospace (JetBrains Mono/Fira Code)</option>
                     </select>
                 </div>
             </div>
-            
-            <div class="settings-section">
-                <h3><i class="fas fa-database"></i> Dados</h3>
+              <div class="settings-section">
+                <h3><i class="fas fa-database"></i> Data</h3>
                 
                 <div class="setting-item">
-                    <label>Pasta atual:</label>
-                    <span id="current-folder-path" class="folder-path">Nenhuma pasta carregada</span>
+                    <label>Current folder:</label>
+                    <span id="current-folder-path" class="folder-path">No folder loaded</span>
                 </div>
                 
                 <div class="setting-item">
                     <button id="clear-data-btn" class="btn btn-danger">
-                        <i class="fas fa-trash"></i> Limpar Todos os Dados
+                        <i class="fas fa-trash"></i> Clear All Data
                     </button>
                     <small class="setting-description">
-                        Remove todas as playlists, favoritos e músicas salvas
+                        Removes all playlists, favorites and saved songs
                     </small>
                 </div>
             </div>
-            
-            <div class="settings-section">
-                <h3><i class="fas fa-info-circle"></i> Sobre</h3>
-                <p>Music Player com tema Gruvbox</p>
-                <p>Versão 1.0 - Desenvolvido para reproduzir música local</p>
+              <div class="settings-section">
+                <h3><i class="fas fa-info-circle"></i> About</h3>
+                <p>Music Player with Gruvbox theme</p>
+                <p>Version 1.0 - Developed for local music playback</p>
             </div>
         </div>
-    </div>
-
-    <!-- Modal para criar playlist -->
+    </div>    <!-- Modal for creating playlist -->
     <div id="playlist-modal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
-            <h2>Criar Nova Playlist</h2>
-            <input type="text" id="playlist-name" placeholder="Nome da playlist">
-            <button id="create-playlist-confirm" class="btn btn-primary">Criar</button>
+            <h2>Create New Playlist</h2>
+            <input type="text" id="playlist-name" placeholder="Playlist name">
+            <button id="create-playlist-confirm" class="btn btn-primary">Create</button>
         </div>
-    </div>    <!-- Modal para adicionar à playlist -->
+    </div>    <!-- Modal for adding to playlist -->
     <div id="add-to-playlist-modal" class="modal">
         <div class="modal-content">
             <span class="close-add-playlist">&times;</span>
-            <h2>Adicionar à Playlist</h2>
+            <h2>Add to Playlist</h2>
             <div id="available-playlists" class="available-playlists">
-                <!-- Playlists serão listadas aqui -->
+                <!-- Playlists will be listed here -->
             </div>
             <button id="add-to-new-playlist" class="btn btn-secondary">
-                <i class="fas fa-plus"></i> Criar Nova Playlist
+                <i class="fas fa-plus"></i> Create New Playlist
             </button>
-        </div>    </div>
-
-    <!-- Help Button -->
-    <button id="help-btn" class="help-button" title="Atalhos de Teclado (?)">
+        </div></div>    <!-- Help Button -->
+    <button id="help-btn" class="help-button" title="Keyboard Shortcuts (?)">
         <i class="fas fa-question"></i>
     </button>
 

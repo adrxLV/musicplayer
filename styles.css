@@ -1001,8 +1001,300 @@ select:focus {
     }
 }
 
-/* Mobile responsive adjustments for new features */
+/* Mobile responsive adjustments */
 @media (max-width: 768px) {
+    /* Header adjustments */
+    .header {
+        padding: var(--padding-sm);
+        flex-direction: column;
+        gap: var(--padding-sm);
+        position: relative;
+    }
+    
+    .header h1 {
+        font-size: 1.2em;
+        text-align: center;
+    }
+    
+    .header-controls {
+        width: 100%;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .header-controls .btn {
+        padding: var(--padding-xs) var(--padding-sm);
+        font-size: 0.8em;
+        min-width: 120px;
+    }
+    
+    /* Main layout changes for mobile */
+    .main-content {
+        flex-direction: column;
+    }
+    
+    /* Hide sidebar on mobile, show as bottom nav */
+    .sidebar {
+        width: 100%;
+        min-width: auto;
+        padding: var(--padding-sm);
+        border-right: none;
+        border-top: 1px solid var(--bg-light);
+        order: 2;
+        max-height: 120px;
+        overflow-y: auto;
+    }
+    
+    .nav-menu ul {
+        display: flex;
+        justify-content: space-around;
+        margin-bottom: var(--padding-sm);
+    }
+    
+    .nav-menu li {
+        margin-bottom: 0;
+        flex: 1;
+    }
+    
+    .nav-link {
+        flex-direction: column;
+        padding: var(--padding-xs);
+        font-size: 0.75em;
+        gap: 2px;
+        text-align: center;
+    }
+    
+    .nav-link i {
+        font-size: 1.2em;
+    }
+    
+    .playlists-section {
+        display: none; /* Hide on mobile to save space */
+    }
+    
+    /* Content area adjustments */
+    .content {
+        order: 1;
+        padding: var(--padding-sm);
+        overflow-y: auto;
+        height: calc(100vh - 300px); /* Account for header, player, and nav */
+    }
+    
+    .content-header {
+        flex-direction: column;
+        gap: var(--padding-sm);
+        margin-bottom: var(--padding-md);
+    }
+    
+    .content-title-section {
+        text-align: center;
+    }
+    
+    .content-title-section h2 {
+        font-size: 1.3em;
+        margin-bottom: var(--padding-sm);
+    }
+    
+    .header-actions {
+        width: 100%;
+    }
+    
+    .filters {
+        flex-direction: column;
+        gap: var(--padding-xs);
+    }
+    
+    .filters select {
+        width: 100%;
+        font-size: 0.9em;
+    }
+    
+    .search-bar {
+        width: 100%;
+        margin-top: var(--padding-sm);
+    }
+    
+    .search-bar input {
+        width: 100%;
+        font-size: 0.9em;
+    }
+    
+    /* Music grid for mobile */
+    .music-grid {
+        grid-template-columns: 1fr;
+        gap: var(--padding-sm);
+    }
+    
+    .music-item {
+        padding: var(--padding-sm);
+    }
+    
+    .music-item img {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .music-info h4 {
+        font-size: 0.9em;
+    }
+    
+    .music-info p {
+        font-size: 0.8em;
+    }
+    
+    .music-actions {
+        gap: var(--padding-xs);
+    }
+    
+    .action-btn {
+        padding: var(--padding-xs);
+        font-size: 0.8em;
+    }
+    
+    /* Player controls mobile layout */
+    .player-controls {
+        flex-direction: column;
+        gap: var(--padding-sm);
+        padding: var(--padding-sm);
+    }
+    
+    .current-song {
+        min-width: auto;
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .current-song img {
+        width: 40px;
+        height: 40px;
+        margin-right: var(--padding-sm);
+    }
+    
+    .song-info {
+        flex: 1;
+        min-width: 0;
+    }
+    
+    #current-title,
+    #current-artist {
+        max-width: none;
+        font-size: 0.9em;
+    }
+    
+    .playback-controls {
+        justify-content: center;
+        gap: var(--padding-lg);
+    }
+    
+    .control-btn {
+        width: 45px;
+        height: 45px;
+        font-size: 1.1em;
+    }
+    
+    .play-btn {
+        width: 55px;
+        height: 55px;
+        font-size: 1.4em;
+    }
+    
+    .volume-controls {
+        min-width: auto;
+        width: 100%;
+        justify-content: center;
+        gap: var(--padding-md);
+    }
+    
+    #volume-slider {
+        width: 150px;
+    }
+    
+    /* Progress bar mobile */
+    .progress-container {
+        padding: var(--padding-sm);
+        gap: var(--padding-sm);
+    }
+    
+    .progress-container span {
+        font-size: 0.75em;
+        min-width: 35px;
+    }
+    
+    /* Modal adjustments for mobile */
+    .modal-content {
+        margin: 10% auto;
+        padding: var(--padding-lg);
+        width: 90%;
+        max-width: 400px;
+    }
+    
+    .modal-content h2 {
+        font-size: 1.2em;
+        margin-bottom: var(--padding-md);
+    }
+    
+    .modal-content input {
+        font-size: 0.9em;
+        padding: var(--padding-sm);
+    }
+    
+    /* Settings page mobile */
+    .settings-page {
+        padding: var(--padding-md);
+    }
+    
+    .settings-header {
+        padding-top: var(--padding-lg);
+        margin-bottom: var(--padding-lg);
+    }
+    
+    .settings-header h1 {
+        font-size: 1.8em;
+    }
+    
+    .settings-header button {
+        position: fixed !important;
+        top: var(--padding-sm) !important;
+        left: var(--padding-sm) !important;
+        z-index: 10;
+        padding: var(--padding-xs) var(--padding-sm) !important;
+        font-size: 0.8em;
+    }
+    
+    .settings-section {
+        padding: var(--padding-lg);
+        margin-bottom: var(--padding-md);
+    }
+    
+    .settings-section h3 {
+        font-size: 1.1em;
+    }
+    
+    .setting-item {
+        margin-bottom: var(--padding-md);
+    }
+    
+    .setting-select {
+        min-width: auto;
+        width: 100%;
+        font-size: 0.9em;
+    }
+    
+    .folder-path {
+        font-size: 0.8em;
+        word-break: break-word;
+    }
+    
+    /* Help button mobile */
+    .help-button {
+        bottom: 6rem;
+        right: 1rem;
+        width: 45px;
+        height: 45px;
+        font-size: 1rem;
+    }
+    
+    /* Additional mobile-specific improvements */
     .keyboard-help-modal {
         padding: 1rem;
     }
@@ -1021,16 +1313,46 @@ select:focus {
     .shortcut-description {
         margin-left: 0;
     }
-      .help-button {
-        bottom: 6rem;
-        right: 1rem;
-        width: 45px;
-        height: 45px;
-        font-size: 1rem;
-    }
     
     .playlist-actions {
         flex-direction: column;
+        gap: var(--padding-xs);
+    }
+    
+    /* Empty state mobile */
+    .empty-state {
+        padding: var(--padding-lg);
+        text-align: center;
+    }
+    
+    .empty-state h3 {
+        font-size: 1.1em;
+        margin-bottom: var(--padding-sm);
+    }
+    
+    .empty-state p {
+        font-size: 0.9em;
+    }
+}
+
+/* Tablet responsive adjustments */
+@media (max-width: 1024px) and (min-width: 769px) {
+    .sidebar {
+        width: 200px;
+        min-width: 200px;
+    }
+    
+    .music-grid {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    }
+    
+    .header-controls .btn {
+        padding: var(--padding-sm) var(--padding-md);
+        font-size: 0.85em;
+    }
+    
+    .content {
+        padding: var(--padding-md);
     }
 }
 

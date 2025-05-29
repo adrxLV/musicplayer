@@ -46,10 +46,10 @@ class MusicPlayer {
                 grid.innerHTML = `
                     <div class="empty-state">
                         <i class="fas fa-folder-open"></i>
-                        <h3>Pasta carregada anteriormente: ${this.settings.folderPath}</h3>
-                        <p>Por favor, carregue a pasta novamente para ouvir as músicas</p>
+                        <h3>Previously loaded folder: ${this.settings.folderPath}</h3>
+                        <p>Please load the folder again to listen to the songs</p>
                         <button id="reload-folder-hint" class="btn btn-primary" style="margin-top: 1rem;">
-                            <i class="fas fa-folder-open"></i> Carregar Pasta
+                            <i class="fas fa-folder-open"></i> Load Folder
                         </button>
                     </div>
                 `;
@@ -147,7 +147,7 @@ class MusicPlayer {
         });
         this.audio.addEventListener('error', (e) => {
             console.error('Audio error:', e);
-            this.showNotification('Erro ao reproduzir a música');
+            this.showNotification('Error playing the song');
             this.nextSong();
         });
         this.audio.addEventListener('loadstart', () => {
@@ -181,7 +181,7 @@ class MusicPlayer {
         });
         this.audio.addEventListener('error', (e) => {
             console.error('Audio error:', e);
-            this.showNotification('Erro ao reproduzir a música');
+            this.showNotification('Error playing the song');
             this.nextSong();
         });
         this.audio.addEventListener('loadstart', () => {
@@ -194,10 +194,10 @@ class MusicPlayer {
                 file.type.startsWith('audio/') || file.name.match(/\.(mp3|wav|ogg|m4a|flac)$/i)
             );
             if (musicFiles.length === 0) {
-                this.showNotification('Nenhum arquivo de música encontrado na pasta selecionada');
+                this.showNotification('No music files found in the selected folder');
                 return;
             }
-            this.showLoadingState(`Carregando ${musicFiles.length} música(s)...`);
+            this.showLoadingState(`Loading ${musicFiles.length} song(s)...`);
             this.songs = [];
             this.allSongs = [];
             const loadingPromises = musicFiles.map(async (file) => {
@@ -208,7 +208,7 @@ class MusicPlayer {
                     return null;
                 }
             });
-            document.getElementById('music-grid').innerHTML = '<div class="empty-state"><i class="fas fa-spinner fa-spin"></i><h3>Carregando músicas...</h3></div>';
+            document.getElementById('music-grid').innerHTML = '<div class="empty-state"><i class="fas fa-spinner fa-spin"></i><h3>Loading songs...</h3></div>';
             const results = await Promise.all(loadingPromises);
             const successfulSongs = results.filter(song => song !== null);
             this.allSongs = [...this.songs];
@@ -228,13 +228,13 @@ class MusicPlayer {
               this.updateFilters();
             if (this.songs.length > 0) {
                 document.getElementById('filters-container').style.display = 'flex';
-                this.showNotification(`✅ ${this.songs.length} música(s) carregada(s) com sucesso!`);
+                this.showNotification(`✅ ${this.songs.length} song(s) loaded successfully!`);
             }
             this.hideLoadingState();
             this.renderMusicGrid();
         } catch (error) {
             this.hideLoadingState();
-            this.handleFileError(error, 'operação de carregamento');
+            this.handleFileError(error, 'loading operation');
         }
     }
     reconnectPlaylistSongs() {
@@ -266,11 +266,11 @@ class MusicPlayer {
         localStorage.setItem('playlists', JSON.stringify(this.playlists));
         if (totalPlaylistSongs > 0) {
             if (reconnectedCount === totalPlaylistSongs) {
-                this.showNotification(`🔗 Todas as ${totalPlaylistSongs} música(s) das playlists foram reconectadas!`);
+                this.showNotification(`🔗 All ${totalPlaylistSongs} song(s) from playlists were reconnected!`);
             } else if (reconnectedCount > 0) {
-                this.showNotification(`🔗 ${reconnectedCount}/${totalPlaylistSongs} música(s) das playlists foram reconectadas`);
+                this.showNotification(`🔗 ${reconnectedCount}/${totalPlaylistSongs} song(s) from playlists were reconnected`);
             } else {
-                this.showNotification(`⚠️ Nenhuma música das playlists foi encontrada na pasta carregada`);
+                this.showNotification(`⚠️ No songs from playlists were found in the loaded folder`);
             }
         }
     }
@@ -282,7 +282,7 @@ class MusicPlayer {
                 file: file,
                 title: file.name.replace(/\.[^/.]+$/, ""),
                 artist: 'Artista Desconhecido',
-                album: 'Álbum Desconhecido',
+                album: 'Unknown Album',
                 year: '',
                 genre: '',
                 duration: 0,
@@ -325,7 +325,7 @@ class MusicPlayer {
         const artists = [...new Set(this.allSongs.map(song => song.artist).filter(a => a))];
         const years = [...new Set(this.allSongs.map(song => song.year).filter(y => y))].sort((a, b) => b - a);
         const genreFilter = document.getElementById('genre-filter');
-        genreFilter.innerHTML = '<option value="">Todos os Gêneros</option>' +
+        genreFilter.innerHTML = '<option value="">All Genres</option>' +
             genres.map(genre => `<option value="${genre}">${genre}</option>`).join('');
         const artistFilter = document.getElementById('artist-filter');
         artistFilter.innerHTML = '<option value="">Todos os Artistas</option>' +
@@ -376,8 +376,8 @@ class MusicPlayer {
             grid.innerHTML = `
                 <div class="empty-state">
                     <i class="fas fa-music"></i>
-                    <h3>Nenhuma música encontrada</h3>
-                    <p>Carregue uma pasta com arquivos de música para começar</p>
+                    <h3>No songs found</h3>
+                    <p>Load a folder with music files to get started</p>
                 </div>
             `;
             return;
@@ -582,7 +582,7 @@ class MusicPlayer {
     }    showLibrary() {
         const contentTitle = document.getElementById('content-title');
         if (contentTitle) {
-            contentTitle.textContent = 'Biblioteca de Músicas';
+            contentTitle.textContent = 'Music Library';
         }
         const playPlaylistBtn = document.getElementById('play-current-playlist-btn');
         if (playPlaylistBtn) {
@@ -617,8 +617,8 @@ class MusicPlayer {
             grid.innerHTML = `
                 <div class="empty-state">
                     <i class="fas fa-list"></i>
-                    <h3>Nenhuma playlist criada</h3>
-                    <p>Crie sua primeira playlist para organizar suas músicas</p>
+                    <h3>No playlists created</h3>
+                    <p>Create your first playlist to organize your songs</p>
                     <div class="playlist-actions">
                         <button id="import-playlist-btn" class="playlist-import-btn">
                             <i class="fas fa-file-import"></i> Importar Playlist
@@ -634,8 +634,8 @@ class MusicPlayer {
             const availableSongs = playlist.songs.filter(song => !song.unavailable && song.url);
             const totalSongs = playlist.songs.length;
             const songCountText = availableSongs.length < totalSongs ?
-                `${availableSongs.length}/${totalSongs} música(s)` :
-                `${totalSongs} música(s)`;
+                `${availableSongs.length}/${totalSongs} song(s)` :
+                `${totalSongs} song(s)`;
             return `
             <div class="music-card playlist-card" data-playlist-index="${index}">
                 <div class="album-art">
@@ -674,7 +674,7 @@ class MusicPlayer {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 if (btn.disabled) {
-                    this.showNotification('⚠️ Esta playlist não tem músicas disponíveis. Carregue a pasta com as músicas primeiro.');
+                    this.showNotification('⚠️ This playlist has no available songs. Load the folder with the songs first.');
                     return;
                 }
                 const index = parseInt(btn.dataset.playlistIndex);
@@ -704,7 +704,7 @@ class MusicPlayer {
     }    showFavorites() {
         const contentTitle = document.getElementById('content-title');
         if (contentTitle) {
-            contentTitle.textContent = 'Músicas Favoritas';
+            contentTitle.textContent = 'Favorite Songs';
         }
         const playPlaylistBtn = document.getElementById('play-current-playlist-btn');
         if (playPlaylistBtn) {
@@ -762,7 +762,7 @@ class MusicPlayer {
             const availableSongs = playlist.songs.filter(song => !song.unavailable && song.url);
             const totalSongs = playlist.songs.length;
             if (availableSongs.length < totalSongs) {
-                contentTitle.textContent = `${playlist.name} (${availableSongs.length}/${totalSongs} disponíveis)`;
+                contentTitle.textContent = `${playlist.name} (${availableSongs.length}/${totalSongs} available)`;
             } else {
                 contentTitle.textContent = playlist.name;
             }
@@ -791,18 +791,18 @@ class MusicPlayer {
         if (!playlist || playlist.songs.length === 0) return;
         const availableSongs = playlist.songs.filter(song => !song.unavailable && song.url);
         if (availableSongs.length === 0) {
-            this.showNotification('⚠️ Nenhuma música disponível nesta playlist. Carregue a pasta com as músicas primeiro.');
+            this.showNotification('⚠️ No songs available in this playlist. Load the folder with the songs first.');
             return;
         }
         if (availableSongs.length < playlist.songs.length) {
             const unavailableCount = playlist.songs.length - availableSongs.length;
-            this.showNotification(`⚠️ ${unavailableCount} música(s) não disponível(is) nesta playlist`);
+            this.showNotification(`⚠️ ${unavailableCount} song(s) not available in this playlist`);
         }
         this.currentPlaylist = [...availableSongs];
         this.playSong(0);
     }
     deletePlaylist(index) {
-        if (confirm('Tem certeza que deseja excluir esta playlist?')) {
+        if (confirm('Are you sure you want to delete this playlist?')) {
             this.playlists.splice(index, 1);
             localStorage.setItem('playlists', JSON.stringify(this.playlists));
             this.loadPlaylists();
@@ -817,7 +817,7 @@ class MusicPlayer {
             <div class="playlist-option" data-playlist-index="${playlistIndex}">
                 <i class="fas fa-list"></i>
                 <span>${playlist.name}</span>
-                <span class="playlist-count">(${playlist.songs.length} músicas)</span>
+                <span class="playlist-count">(${playlist.songs.length} songs)</span>
             </div>
         `).join('');
         playlistsList.querySelectorAll('.playlist-option').forEach(option => {
@@ -837,7 +837,7 @@ class MusicPlayer {
         }        const playlist = this.playlists[playlistIndex];
         const songExists = playlist.songs.some(song => song.id === this.selectedSongForPlaylist.id);
         if (songExists) {
-            alert('Esta música já está na playlist!');
+            alert('This song is already in the playlist!');
             return;
         }
         const songToSave = {
@@ -857,7 +857,7 @@ class MusicPlayer {
         if (this.currentView === 'playlists') {
             this.showPlaylists();
         }
-        this.showNotification(`Música adicionada à playlist "${playlist.name}"`);
+        this.showNotification(`Song added to playlist "${playlist.name}"`);
     }
     showNotification(message) {
         let notification = document.getElementById('notification');
@@ -885,7 +885,7 @@ class MusicPlayer {
             if (this.settings.folderPath) {
                 folderPathElement.textContent = this.settings.folderPath;
             } else {
-                folderPathElement.textContent = 'Nenhuma pasta carregada';
+                folderPathElement.textContent = 'No folder loaded';
             }
         }
         this.setupSettingsListeners();
@@ -916,16 +916,16 @@ class MusicPlayer {
         this.settings.theme = theme;
         document.documentElement.setAttribute('data-theme', theme);
         localStorage.setItem('settings', JSON.stringify(this.settings));
-        this.showNotification(`Tema alterado para ${theme === 'dark' ? 'escuro' : 'claro'}`);
+        this.showNotification(`Theme changed to ${theme === 'dark' ? 'dark' : 'light'}`);
     }
     changeFont(font) {
         this.settings.font = font;
         document.documentElement.setAttribute('data-font', font);
         localStorage.setItem('settings', JSON.stringify(this.settings));
-        this.showNotification(`Fonte alterada para ${font === 'monospace' ? 'monoespaçada' : 'padrão'}`);
+        this.showNotification(`Font changed to ${font === 'monospace' ? 'monospace' : 'default'}`);
     }
     clearAllData() {
-        if (confirm('Tem certeza que deseja limpar todos os dados? Esta ação não pode ser desfeita.')) {
+        if (confirm('Are you sure you want to clear all data? This action cannot be undone.')) {
             localStorage.removeItem('playlists');
             localStorage.removeItem('favorites');
             localStorage.removeItem('savedSongs');
@@ -940,7 +940,7 @@ class MusicPlayer {
             this.loadPlaylists();
             this.updateCurrentSongDisplay();
             this.renderMusicGrid();
-            this.showNotification('Todos os dados foram limpos');
+            this.showNotification('All data has been cleared');
             this.switchView('library');
         }
     }
@@ -1030,11 +1030,11 @@ class MusicPlayer {
                 break;
             case 'ArrowLeft':
                 this.previousSong();
-                this.showNotification('⏮️ Música anterior');
+                this.showNotification('⏮️ Previous song');
                 break;
             case 'ArrowRight':
                 this.nextSong();
-                this.showNotification('⏭️ Próxima música');
+                this.showNotification('⏭️ Next song');
                 break;
             case 'ArrowUp':
                 const currentVolume = Math.round(this.audio.volume * 100);
@@ -1052,33 +1052,33 @@ class MusicPlayer {
                 break;
             case 'KeyM':
                 this.toggleMute();
-                this.showNotification(this.audio.muted ? '🔇 Silenciado' : '🔊 Som ativado');
+                this.showNotification(this.audio.muted ? '🔇 Muted' : '🔊 Sound enabled');
                 break;
             case 'KeyS':
                 this.toggleShuffle();
-                this.showNotification(this.isShuffled ? '🔀 Aleatório ativado' : '🔀 Aleatório desativado');
+                this.showNotification(this.isShuffled ? '🔀 Shuffle enabled' : '🔀 Shuffle disabled');
                 break;
             case 'KeyR':
                 this.toggleRepeat();
-                this.showNotification(this.isRepeating ? '🔁 Repetir ativado' : '🔁 Repetir desativado');
+                this.showNotification(this.isRepeating ? '🔁 Repeat enabled' : '🔁 Repeat disabled');
                 break;            case 'KeyL':
                 if (this.currentSong) {
                     this.toggleLike();
                     const isLiked = this.favorites.includes(this.currentSong.id);
-                    this.showNotification(isLiked ? '❤️ Adicionado aos favoritos' : '💔 Removido dos favoritos');
+                    this.showNotification(isLiked ? '❤️ Added to favorites' : '💔 Removed from favorites');
                 }
                 break;
             case 'KeyF':
                 const searchInput = document.getElementById('search-input');
                 if (searchInput && this.currentView === 'library') {
                     searchInput.focus();
-                    this.showNotification('🔍 Buscar músicas');
+                    this.showNotification('🔍 Search songs');
                 }
                 break;
             case 'KeyP':
                 if (this.currentView === 'library' || this.currentView === 'playlists') {
                     this.showPlaylistModal();
-                    this.showNotification('➕ Nova playlist');
+                    this.showNotification('➕ New playlist');
                 }
                 break;
             case 'Escape':
@@ -1092,7 +1092,7 @@ class MusicPlayer {
                 break;
             case 'Digit1':
                 this.switchView('library');
-                this.showNotification('📚 Biblioteca');
+                this.showNotification('📚 Library');
                 break;
             case 'Digit2':
                 this.switchView('playlists');
@@ -1100,15 +1100,15 @@ class MusicPlayer {
                 break;
             case 'Digit3':
                 this.switchView('favorites');
-                this.showNotification('❤️ Favoritas');
+                this.showNotification('❤️ Favorites');
                 break;            case 'Digit4':
                 this.switchView('settings');
-                this.showNotification('⚙️ Configurações');
+                this.showNotification('⚙️ Settings');
                 break;
             case 'Slash':
                 if (e.shiftKey) {
                     this.showKeyboardHelp();
-                    this.showNotification('❓ Ajuda de atalhos');
+                    this.showNotification('❓ Keyboard shortcuts help');
                 }
                 break;
         }
@@ -1146,12 +1146,12 @@ class MusicPlayer {
         helpModal.innerHTML = `
             <div class="keyboard-help-content">
                 <div class="keyboard-help-header">
-                    <h3><i class="fas fa-keyboard"></i> Atalhos do Teclado</h3>
+                    <h3><i class="fas fa-keyboard"></i> Keyboard Shortcuts</h3>
                     <button class="keyboard-help-close close-help">&times;</button>
                 </div>
                 <div class="keyboard-shortcuts">
                     <div class="shortcut-group">
-                        <h4><i class="fas fa-play"></i> Controles de Reprodução</h4>
+                        <h4><i class="fas fa-play"></i> Playback Controls</h4>
                         <div class="shortcut-list">
                             <div class="shortcut-item">
                                 <span class="shortcut-key">Space</span>
@@ -1159,57 +1159,57 @@ class MusicPlayer {
                             </div>
                             <div class="shortcut-item">
                                 <span class="shortcut-key">←</span>
-                                <span class="shortcut-description">Música anterior</span>
+                                <span class="shortcut-description">Previous song</span>
                             </div>
                             <div class="shortcut-item">
                                 <span class="shortcut-key">→</span>
-                                <span class="shortcut-description">Próxima música</span>
+                                <span class="shortcut-description">Next song</span>
                             </div>
                             <div class="shortcut-item">
                                 <span class="shortcut-key">↑</span>
-                                <span class="shortcut-description">Aumentar volume</span>
+                                <span class="shortcut-description">Increase volume</span>
                             </div>
                             <div class="shortcut-item">
                                 <span class="shortcut-key">↓</span>
-                                <span class="shortcut-description">Diminuir volume</span>
+                                <span class="shortcut-description">Decrease volume</span>
                             </div>
                             <div class="shortcut-item">
                                 <span class="shortcut-key">M</span>
-                                <span class="shortcut-description">Silenciar/Ativar som</span>
+                                <span class="shortcut-description">Mute/Unmute</span>
                             </div>
                         </div>
                     </div>
                     <div class="shortcut-group">
-                        <h4><i class="fas fa-cog"></i> Funcionalidades</h4>
+                        <h4><i class="fas fa-cog"></i> Features</h4>
                         <div class="shortcut-list">
                             <div class="shortcut-item">
                                 <span class="shortcut-key">S</span>
-                                <span class="shortcut-description">Alternar modo aleatório</span>
+                                <span class="shortcut-description">Toggle shuffle mode</span>
                             </div>
                             <div class="shortcut-item">
                                 <span class="shortcut-key">R</span>
-                                <span class="shortcut-description">Alternar repetição</span>
+                                <span class="shortcut-description">Toggle repeat</span>
                             </div>
                             <div class="shortcut-item">
                                 <span class="shortcut-key">L</span>
-                                <span class="shortcut-description">Curtir música atual</span>
+                                <span class="shortcut-description">Like current song</span>
                             </div>
                             <div class="shortcut-item">
                                 <span class="shortcut-key">F</span>
-                                <span class="shortcut-description">Focar na busca</span>
+                                <span class="shortcut-description">Focus on search</span>
                             </div>
                             <div class="shortcut-item">
                                 <span class="shortcut-key">P</span>
-                                <span class="shortcut-description">Nova playlist</span>
+                                <span class="shortcut-description">New playlist</span>
                             </div>
                         </div>
                     </div>
                     <div class="shortcut-group">
-                        <h4><i class="fas fa-compass"></i> Navegação</h4>
+                        <h4><i class="fas fa-compass"></i> Navigation</h4>
                         <div class="shortcut-list">
                             <div class="shortcut-item">
                                 <span class="shortcut-key">1</span>
-                                <span class="shortcut-description">Biblioteca</span>
+                                <span class="shortcut-description">Library</span>
                             </div>
                             <div class="shortcut-item">
                                 <span class="shortcut-key">2</span>
@@ -1217,26 +1217,26 @@ class MusicPlayer {
                             </div>
                             <div class="shortcut-item">
                                 <span class="shortcut-key">3</span>
-                                <span class="shortcut-description">Favoritas</span>
+                                <span class="shortcut-description">Favorites</span>
                             </div>
                             <div class="shortcut-item">
                                 <span class="shortcut-key">4</span>
-                                <span class="shortcut-description">Configurações</span>
+                                <span class="shortcut-description">Settings</span>
                             </div>
                             <div class="shortcut-item">
                                 <span class="shortcut-key">Esc</span>
-                                <span class="shortcut-description">Fechar modais/Limpar busca</span>
+                                <span class="shortcut-description">Close modals/Clear search</span>
                             </div>
                             <div class="shortcut-item">
                                 <span class="shortcut-key">?</span>
-                                <span class="shortcut-description">Mostrar esta ajuda</span>
+                                <span class="shortcut-description">Show this help</span>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div style="text-align: center; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--bg-light);">
                     <button class="btn btn-primary close-help">
-                        <i class="fas fa-check"></i> Entendi!
+                        <i class="fas fa-check"></i> Got it!
                     </button>
                 </div>
             </div>
@@ -1262,20 +1262,20 @@ class MusicPlayer {
     }
     handleFileError(error, filename) {
         console.error('File error:', error, filename);
-        let message = 'Erro ao processar arquivo';
+        let message = 'Error processing file';
         if (filename) {
             message += `: ${filename}`;
         }
         if (error.name === 'NotReadableError') {
-            message = 'Arquivo não pode ser lido. Verifique se o arquivo não está corrompido.';
+            message = 'File cannot be read. Check if the file is not corrupted.';
         } else if (error.name === 'SecurityError') {
-            message = 'Erro de segurança ao acessar o arquivo.';
+            message = 'Security error when accessing the file.';
         } else if (error.name === 'NotFoundError') {
-            message = 'Arquivo não encontrado.';
+            message = 'File not found.';
         }
         this.showNotification(message);
     }
-    showLoadingState(message = 'Carregando...') {
+    showLoadingState(message = 'Loading...') {
         let loader = document.getElementById('loading-indicator');
         if (!loader) {
             loader = document.createElement('div');
@@ -1299,7 +1299,7 @@ class MusicPlayer {
     }
     optimizeForLargeLibrary() {
         if (this.allSongs.length > 1000) {
-            this.showNotification(`📚 Biblioteca grande detectada (${this.allSongs.length} músicas). Otimizando performance...`);
+            this.showNotification(`📚 Large library detected (${this.allSongs.length} songs). Optimizing performance...`);
             this.songs = this.allSongs.slice(0, 100);
             this.currentPlaylist = [...this.songs];
             this.addLoadMoreButton();
@@ -1425,26 +1425,26 @@ class MusicPlayer {
         localStorage.setItem('playlists', JSON.stringify(this.playlists));
         if (totalPlaylistSongs > 0) {
             if (reconnectedCount === totalPlaylistSongs) {
-                this.showNotification(`🔗 Todas as ${totalPlaylistSongs} música(s) das playlists foram reconectadas!`);
+                this.showNotification(`🔗 All ${totalPlaylistSongs} song(s) from playlists have been reconnected!`);
             } else if (reconnectedCount > 0) {
-                this.showNotification(`🔗 ${reconnectedCount}/${totalPlaylistSongs} música(s) das playlists foram reconectadas`);
+                this.showNotification(`🔗 ${reconnectedCount}/${totalPlaylistSongs} song(s) from playlists have been reconnected`);
             } else {
-                this.showNotification(`⚠️ Nenhuma música das playlists foi encontrada na pasta carregada`);
+                this.showNotification(`⚠️ No songs from playlists were found in the loaded folder`);
             }
         }
     }
     enhanceAccessibility() {
         const controls = {
-            'play-pause-btn': 'Reproduzir ou pausar música',
-            'prev-btn': 'Música anterior',
-            'next-btn': 'Próxima música',
-            'shuffle-btn': 'Alternar modo aleatório',
-            'repeat-btn': 'Alternar repetição',
-            'like-btn': 'Curtir música atual',
-            'volume-btn': 'Silenciar ou ativar som',
-            'volume-slider': 'Controle de volume',
-            'progress-slider': 'Progresso da música',
-            'search-input': 'Buscar músicas, artistas ou álbuns'
+            'play-pause-btn': 'Play or pause music',
+            'prev-btn': 'Previous song',
+            'next-btn': 'Next song',
+            'shuffle-btn': 'Toggle shuffle mode',
+            'repeat-btn': 'Toggle repeat',
+            'like-btn': 'Like current song',
+            'volume-btn': 'Mute or unmute sound',
+            'volume-slider': 'Volume control',
+            'progress-slider': 'Song progress',
+            'search-input': 'Search songs, artists or albums'
         };        Object.entries(controls).forEach(([id, label]) => {
             const element = document.getElementById(id);
             if (element) {

@@ -286,8 +286,7 @@ class MusicPlayer {
             
             // Check for large library and optimize if needed
             this.optimizeForLargeLibrary();
-            
-            // Save to localStorage
+              // Save to localStorage
             const songsToSave = this.songs.map(song => ({
                 ...song,
                 file: null, // Don't save file object
@@ -316,11 +315,13 @@ class MusicPlayer {
             this.hideLoadingState();
             this.handleFileError(error, 'operação de carregamento');
         }
-    }
-
-    async processAudioFile(file) {
+    }    async processAudioFile(file) {
         return new Promise((resolve) => {
+            // Create a unique identifier for the song based on file path and name
+            const songId = `${file.webkitRelativePath || file.name}_${file.size}_${file.lastModified}`;
+            
             const song = {
+                id: songId,
                 file: file,
                 title: file.name.replace(/\.[^/.]+$/, ""),
                 artist: 'Artista Desconhecido',
@@ -329,7 +330,9 @@ class MusicPlayer {
                 genre: '',
                 duration: 0,
                 albumArt: null,
-                url: URL.createObjectURL(file)
+                url: URL.createObjectURL(file),
+                fileName: file.name,
+                filePath: file.webkitRelativePath || file.name
             };
 
             // Try to read metadata using jsmediatags
@@ -460,8 +463,7 @@ class MusicPlayer {
                 <div class="song-actions">
                     <button class="action-btn play-song-btn" data-index="${index}">
                         <i class="fas fa-play"></i>
-                    </button>
-                    <button class="action-btn like-song-btn ${this.favorites.includes(song.url) ? 'liked' : ''}" data-url="${song.url}">
+                    </button>                    <button class="action-btn like-song-btn ${this.favorites.includes(song.id) ? 'liked' : ''}" data-song-id="${song.id}">
                         <i class="fas fa-heart"></i>
                     </button>
                     <button class="action-btn add-to-playlist-btn" data-index="${index}">
@@ -487,13 +489,11 @@ class MusicPlayer {
                 const index = parseInt(btn.dataset.index);
                 this.playSong(index);
             });
-        });
-
-        grid.querySelectorAll('.like-song-btn').forEach(btn => {
+        });        grid.querySelectorAll('.like-song-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                const url = btn.dataset.url;
-                this.toggleSongLike(url, btn);
+                const songId = btn.dataset.songId;
+                this.toggleSongLike(songId, btn);
             });
         });
 
@@ -608,21 +608,17 @@ class MusicPlayer {
         if (this.audio.duration) {
             this.audio.currentTime = (percentage / 100) * this.audio.duration;
         }
-    }
-
-    toggleLike() {
+    }    toggleLike() {
         if (!this.currentSong) return;
-        this.toggleSongLike(this.currentSong.url, document.getElementById('like-btn'));
-    }
-
-    toggleSongLike(url, button) {
-        const index = this.favorites.indexOf(url);
+        this.toggleSongLike(this.currentSong.id, document.getElementById('like-btn'));
+    }toggleSongLike(songId, button) {
+        const index = this.favorites.indexOf(songId);
         if (index > -1) {
             this.favorites.splice(index, 1);
             button.classList.remove('liked');
             button.querySelector('i').className = 'far fa-heart';
         } else {
-            this.favorites.push(url);
+            this.favorites.push(songId);
             button.classList.add('liked');
             button.querySelector('i').className = 'fas fa-heart';
         }
@@ -829,7 +825,7 @@ class MusicPlayer {
             playPlaylistBtn.style.display = 'none';
         }
         
-        this.currentPlaylist = this.songs.filter(song => this.favorites.includes(song.url));
+        this.currentPlaylist = this.songs.filter(song => this.favorites.includes(song.id));
         
         // Hide filters for favorites view
         const filtersContainer = document.getElementById('filters-container');
@@ -969,10 +965,8 @@ class MusicPlayer {
     addSongToPlaylist(playlistIndex) {
         if (!this.selectedSongForPlaylist || playlistIndex < 0 || playlistIndex >= this.playlists.length) {
             return;
-        }
-
-        const playlist = this.playlists[playlistIndex];
-        const songExists = playlist.songs.some(song => song.url === this.selectedSongForPlaylist.url);
+        }        const playlist = this.playlists[playlistIndex];
+        const songExists = playlist.songs.some(song => song.id === this.selectedSongForPlaylist.id);
         
         if (songExists) {
             alert('Esta música já está na playlist!');
@@ -1117,11 +1111,9 @@ class MusicPlayer {
             albumArt.src = this.currentSong.albumArt;
         } else {
             albumArt.src = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBmaWxsPSIjM0MzODM2Ii8+CjxwYXRoIGQ9Ik0yMCAzMEMxNC40NzcyIDMwIDEwIDI1LjUyMjggMTAgMjBDMTAgMTQuNDc3MiAxNC40NzcyIDEwIDIwIDEwQzI1LjUyMjggMTAgMzAgMTQuNDc3MiAzMCAyMEMzMCAyNS41MjI4IDI1LjUyMjggMzAgMjAgMzBaTTIwIDI1QzIyLjc2MTQgMjUgMjUgMjIuNzYxNCAyNSAyMEMyNSAxNy4yMzg2IDIyLjc2MTQgMTUgMjAgMTVDMTcuMjM4NiAxNSAxNSAxNy4yMzg2IDE1IDIwQzE1IDIyLjc2MTQgMTcuMjM4NiAyNSAyMCAyNVoiIGZpbGw9IiNGQkYxQzciLz4KPC9zdmc+";
-        }
-
-        // Update like button
+        }        // Update like button
         const likeBtn = document.getElementById('like-btn');
-        if (this.favorites.includes(this.currentSong.url)) {
+        if (this.favorites.includes(this.currentSong.id)) {
             likeBtn.classList.add('liked');
             likeBtn.querySelector('i').className = 'fas fa-heart';
         } else {
@@ -1251,12 +1243,10 @@ class MusicPlayer {
             case 'KeyR': // Repeat
                 this.toggleRepeat();
                 this.showNotification(this.isRepeating ? '🔁 Repetir ativado' : '🔁 Repetir desativado');
-                break;
-
-            case 'KeyL': // Like current song
+                break;            case 'KeyL': // Like current song
                 if (this.currentSong) {
                     this.toggleLike();
-                    const isLiked = this.favorites.includes(this.currentSong.url);
+                    const isLiked = this.favorites.includes(this.currentSong.id);
                     this.showNotification(isLiked ? '❤️ Adicionado aos favoritos' : '💔 Removido dos favoritos');
                 }
                 break;

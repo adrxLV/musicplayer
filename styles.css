@@ -51,7 +51,7 @@
 }
 
 /* Font Variants */
-[data-font="mono"] {
+[data-font="monospace"] {
     --font-main: var(--font-mono);
 }
 

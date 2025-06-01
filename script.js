@@ -328,10 +328,10 @@ class MusicPlayer {
         genreFilter.innerHTML = '<option value="">All Genres</option>' +
             genres.map(genre => `<option value="${genre}">${genre}</option>`).join('');
         const artistFilter = document.getElementById('artist-filter');
-        artistFilter.innerHTML = '<option value="">Todos os Artistas</option>' +
+        artistFilter.innerHTML = '<option value="">All Artists</option>' +
             artists.map(artist => `<option value="${artist}">${artist}</option>`).join('');
         const yearFilter = document.getElementById('year-filter');
-        yearFilter.innerHTML = '<option value="">Todos os Anos</option>' +
+        yearFilter.innerHTML = '<option value="">All years</option>' +
             years.map(year => `<option value="${year}">${year}</option>`).join('');
     }
     applyFilters() {

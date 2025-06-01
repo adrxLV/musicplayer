@@ -23,11 +23,18 @@
 ---
 
 ## 🚀 How to Use
+**Option 1 (local music files, _online_)**
+> 1. Open "https://adrxlv.github.io/musicplayer/" on your favorite browser
+> 2. Load a folder with music files
+> 3. Click a song to start playback
+> 4. Use shortucts or buttons to explore features
 
-1. Open `index.html` in your browser
-2. Load a folder with music files
-3. Click a song to start playback
-4. Use shortcuts or buttons to explore features
+**Option 2 (local website and music files, _offline_)**
+> 1. Clone the Repo
+> 2. Open `index.html` in your browser
+> 3. Load a folder with music files
+> 4. Click a song to start playback
+> 5. Use shortcuts or buttons to explore features
 
 ---
 

@@ -1477,3 +1477,162 @@ select:focus {
     font-style: italic;
     margin-top: var(--padding-xs);
 }
+
+/* Folder Info Display - Enhanced Layout */
+.folder-info-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 2rem;
+}
+
+.folder-info-content {
+    background: var(--bg-dark);
+    border: 1px solid var(--bg-light);
+    border-radius: var(--radius-lg);
+    padding: 3rem;
+    max-width: 600px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    position: relative;
+}
+
+.folder-info-content .empty-state {
+    padding: 0;
+    color: inherit;
+}
+
+.folder-info-content .folder-info {
+    background: var(--bg-medium) !important;
+    padding: 2rem !important;
+    border-radius: var(--radius-md) !important;
+    margin: 2rem 0 !important;
+    text-align: left !important;
+    border: 1px solid var(--bg-light);
+}
+
+.folder-info-content .folder-info p {
+    margin: 0.8rem 0 !important;
+    color: var(--fg-primary) !important;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.folder-info-content .folder-info strong {
+    color: var(--accent-green);
+    font-weight: 600;
+}
+
+.folder-info-content h3 {
+    color: var(--fg-primary) !important;
+    font-size: 1.5rem !important;
+    margin-bottom: 1rem !important;
+}
+
+.folder-info-content > p {
+    color: var(--fg-secondary) !important;
+    font-size: 1rem !important;
+    line-height: 1.5 !important;
+    margin: 1.5rem 0 !important;
+}
+
+.folder-info-actions {
+    display: flex !important;
+    gap: 1rem !important;
+    justify-content: center !important;
+    flex-wrap: wrap !important;
+    margin-top: 2rem !important;
+}
+
+.folder-info-actions .btn {
+    min-width: 160px;
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+/* Notification Styles - Enhanced */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: var(--bg-dark);
+    color: var(--fg-primary);
+    padding: 1rem 1.5rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--accent-green);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    z-index: 1001;
+    transform: translateX(100%);
+    opacity: 0;
+    transition: all 0.3s ease;
+    max-width: 400px;
+    word-wrap: break-word;
+    font-size: 0.95rem;
+    line-height: 1.4;
+}
+
+.notification.show {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+/* Mobile responsive styles for folder info modal */
+@media (max-width: 768px) {
+    .folder-info-container {
+        padding: 1rem;
+    }
+    
+    .folder-info-content {
+        padding: 2rem 1.5rem;
+        max-width: none;
+        width: 100%;
+        margin: 0;
+    }
+    
+    .folder-info-content .folder-info {
+        padding: 1.5rem !important;
+        margin: 1rem 0 !important;
+    }
+    
+    .folder-info-content h3 {
+        font-size: 1.3rem !important;
+    }
+    
+    .folder-info-actions {
+        flex-direction: column !important;
+        gap: 0.8rem !important;
+    }
+    
+    .folder-info-actions .btn {
+        min-width: auto;
+        width: 100%;
+        padding: 1rem;
+        font-size: 0.95rem;
+    }
+    
+    .notification {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        max-width: none;
+        transform: translateY(-100%);
+        font-size: 0.9rem;
+        padding: 0.8rem 1rem;
+    }
+    
+    .notification.show {
+        transform: translateY(0);
+    }
+}

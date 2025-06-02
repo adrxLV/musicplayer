@@ -41,27 +41,92 @@ class MusicPlayer {
             this.allSongs = [];
             this.currentPlaylist = [];
             this.renderMusicGrid();
-            const grid = document.getElementById('music-grid');
-            if (grid) {
-                grid.innerHTML = `
-                    <div class="empty-state">
-                        <i class="fas fa-folder-open"></i>
-                        <h3>Previously loaded folder: ${this.settings.folderPath}</h3>
-                        <p>Please load the folder again to listen to the songs</p>
-                        <button id="reload-folder-hint" class="btn btn-primary" style="margin-top: 1rem;">
+            this.showFolderInfoModal();
+        }
+    }
+
+    showFolderInfoModal() {
+        // Remove any existing folder info modal
+        this.hideFolderInfoModal();
+
+        const modal = document.createElement('div');
+        modal.id = 'folder-info-modal';
+        modal.className = 'folder-info-container';
+        modal.innerHTML = `
+            <div class="folder-info-content">
+                <div class="folder-info">
+                    <i class="fas fa-folder-open"></i>
+                    <h3>Previously loaded folder</h3>
+                    <p class="folder-path">${this.settings.folderPath}</p>
+                    <p class="folder-description">Please load the folder again to listen to the songs</p>
+                    <div class="folder-info-actions">
+                        <button id="reload-folder-btn-modal" class="btn btn-primary">
                             <i class="fas fa-folder-open"></i> Load Folder
                         </button>
+                        <button id="clear-history-btn-modal" class="btn btn-secondary">
+                            <i class="fas fa-trash"></i> Clear History
+                        </button>
                     </div>
-                `;
-                const reloadBtn = document.getElementById('reload-folder-hint');
-                if (reloadBtn) {
-                    reloadBtn.addEventListener('click', () => {
-                        document.getElementById('folder-input').click();
-                    });
-                }
-            }
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+
+        // Add event listeners
+        const reloadBtn = document.getElementById('reload-folder-btn-modal');
+        const clearBtn = document.getElementById('clear-history-btn-modal');
+
+        if (reloadBtn) {
+            reloadBtn.addEventListener('click', () => {
+                this.hideFolderInfoModal();
+                document.getElementById('folder-input').click();
+            });
         }
-    }    initializeEventListeners() {
+
+        if (clearBtn) {
+            clearBtn.addEventListener('click', () => {
+                this.clearFolderHistory();
+            });
+        }
+
+        // Close modal when clicking outside
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                this.hideFolderInfoModal();
+            }
+        });
+
+        // Close modal with ESC key
+        const escapeHandler = (e) => {
+            if (e.key === 'Escape') {
+                this.hideFolderInfoModal();
+                document.removeEventListener('keydown', escapeHandler);
+            }
+        };
+        document.addEventListener('keydown', escapeHandler);
+    }
+
+    hideFolderInfoModal() {
+        const modal = document.getElementById('folder-info-modal');
+        if (modal) {
+            document.body.removeChild(modal);
+        }
+    }
+
+    clearFolderHistory() {
+        if (confirm('Are you sure you want to clear the folder history? This will remove all saved songs and playlists.')) {
+            localStorage.removeItem('savedSongs');
+            this.settings.folderPath = null;
+            localStorage.setItem('settings', JSON.stringify(this.settings));
+            this.songs = [];
+            this.allSongs = [];
+            this.currentPlaylist = [];
+            this.hideFolderInfoModal();
+            this.renderMusicGrid();
+            this.showNotification('📁 Folder history cleared');
+        }
+    }initializeEventListeners() {
         document.getElementById('load-folder-btn').addEventListener('click', () => {
             document.getElementById('folder-input').click();
         });
@@ -190,6 +255,9 @@ class MusicPlayer {
         });
     }    async loadMusicFiles(files) {
         try {
+            // Hide folder info modal if it's open
+            this.hideFolderInfoModal();
+            
             const musicFiles = Array.from(files).filter(file =>
                 file.type.startsWith('audio/') || file.name.match(/\.(mp3|wav|ogg|m4a|flac)$/i)
             );
@@ -1080,9 +1148,10 @@ class MusicPlayer {
                     this.showPlaylistModal();
                     this.showNotification('➕ New playlist');
                 }
-                break;
-            case 'Escape':
-                if (document.getElementById('playlist-modal').style.display === 'block') {
+                break;            case 'Escape':
+                if (document.getElementById('folder-info-modal')) {
+                    this.hideFolderInfoModal();
+                } else if (document.getElementById('playlist-modal').style.display === 'block') {
                     this.hidePlaylistModal();
                 } else if (document.getElementById('add-to-playlist-modal').style.display === 'block') {
                     this.hideAddToPlaylistModal();

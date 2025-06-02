@@ -644,7 +644,7 @@ class MusicPlayer {
                 <div class="song-title">${playlist.name}</div>
                 <div class="song-artist">${songCountText}</div>
                 <div class="song-actions">
-                    <button class="action-btn play-playlist-btn" data-playlist-index="${index}" title="Copy playlist" ${availableSongs.length === 0 ? 'disabled' : ''}>
+                    <button class="action-btn play-playlist-btn" data-playlist-index="${index}" title="Play playlist" ${availableSongs.length === 0 ? 'disabled' : ''}>
                         <i class="fas fa-play"></i>
                     </button>
                     <button class="action-btn export-playlist-btn" data-playlist-index="${index}" title="Export playlist">

@@ -771,7 +771,7 @@ class MusicPlayer {
         const availableSongs = playlist.songs.filter(song => !song.unavailable && song.url);
         if (playPlaylistBtn && availableSongs.length > 0) {
             playPlaylistBtn.style.display = 'inline-flex';
-            playPlaylistBtn.innerHTML = `<i class="fas fa-play"></i> Reproduzir Playlist`;
+            playPlaylistBtn.innerHTML = `<i class="fas fa-play"></i> Start Playlist`;
             const newBtn = playPlaylistBtn.cloneNode(true);
             playPlaylistBtn.parentNode.replaceChild(newBtn, playPlaylistBtn);
             newBtn.addEventListener('click', () => {

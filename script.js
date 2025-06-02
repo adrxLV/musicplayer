@@ -281,7 +281,7 @@ class MusicPlayer {
                 id: songId,
                 file: file,
                 title: file.name.replace(/\.[^/.]+$/, ""),
-                artist: 'Artista Desconhecido',
+                artist: 'Unknown Artist',
                 album: 'Unknown Album',
                 year: '',
                 genre: '',
@@ -601,7 +601,7 @@ class MusicPlayer {
     }showPlaylists() {
         const contentTitle = document.getElementById('content-title');
         if (contentTitle) {
-            contentTitle.textContent = 'Suas Playlists';
+            contentTitle.textContent = 'Your Playlists';
         }
         const grid = document.getElementById('music-grid');
         if (!grid) return;
@@ -621,7 +621,7 @@ class MusicPlayer {
                     <p>Create your first playlist to organize your songs</p>
                     <div class="playlist-actions">
                         <button id="import-playlist-btn" class="playlist-import-btn">
-                            <i class="fas fa-file-import"></i> Importar Playlist
+                            <i class="fas fa-file-import"></i> Import Playlist
                         </button>
                     </div>
                 </div>
@@ -644,13 +644,13 @@ class MusicPlayer {
                 <div class="song-title">${playlist.name}</div>
                 <div class="song-artist">${songCountText}</div>
                 <div class="song-actions">
-                    <button class="action-btn play-playlist-btn" data-playlist-index="${index}" title="Reproduzir playlist" ${availableSongs.length === 0 ? 'disabled' : ''}>
+                    <button class="action-btn play-playlist-btn" data-playlist-index="${index}" title="Copy playlist" ${availableSongs.length === 0 ? 'disabled' : ''}>
                         <i class="fas fa-play"></i>
                     </button>
-                    <button class="action-btn export-playlist-btn" data-playlist-index="${index}" title="Exportar playlist">
+                    <button class="action-btn export-playlist-btn" data-playlist-index="${index}" title="Export playlist">
                         <i class="fas fa-file-export"></i>
                     </button>
-                    <button class="action-btn delete-playlist-btn" data-playlist-index="${index}" title="Excluir playlist">
+                    <button class="action-btn delete-playlist-btn" data-playlist-index="${index}" title="Delete playlist">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
@@ -659,7 +659,7 @@ class MusicPlayer {
         }).join('') + `
         <div class="playlist-actions" style="grid-column: 1 / -1; justify-content: center; margin-top: 2rem;">
             <button id="import-playlist-btn" class="playlist-import-btn">
-                <i class="fas fa-file-import"></i> Importar Playlist
+                <i class="fas fa-file-import"></i> Import Playlist
             </button>
         </div>
         `;
@@ -1312,7 +1312,7 @@ class MusicPlayer {
         loadMoreBtn.className = 'load-more-container';
         loadMoreBtn.innerHTML = `
             <button id="load-more-btn" class="btn btn-secondary">
-                <i class="fas fa-plus"></i> Carregar mais músicas (${this.allSongs.length - this.songs.length} restantes)
+                <i class="fas fa-plus"></i> Loading remaining (${this.allSongs.length - this.songs.length} songs)
             </button>
         `;
         grid.appendChild(loadMoreBtn);
@@ -1324,7 +1324,7 @@ class MusicPlayer {
                 loadMoreBtn.remove();
             } else {
                 document.getElementById('load-more-btn').innerHTML = `
-                    <i class="fas fa-plus"></i> Carregar mais músicas (${this.allSongs.length - this.songs.length} restantes)
+                    <i class="fas fa-plus"></i> Loading remaining (${this.allSongs.length - this.songs.length} songs)
                 `;
             }
         });
@@ -1355,7 +1355,7 @@ class MusicPlayer {
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-        this.showNotification(`📤 Playlist "${playlist.name}" exportada!`);
+        this.showNotification(`📤 Playlist "${playlist.name}" exported!`);
     }
     importPlaylist() {
         const input = document.createElement('input');
@@ -1369,7 +1369,7 @@ class MusicPlayer {
                 try {
                     const data = JSON.parse(e.target.result);
                     if (!data.name || !Array.isArray(data.songs)) {
-                        throw new Error('Formato de arquivo inválido');
+                        throw new Error('Invalid file format');
                     }
                     let playlistName = data.name;
                     let counter = 1;
@@ -1387,7 +1387,7 @@ class MusicPlayer {
                     this.playlists.push(newPlaylist);
                     localStorage.setItem('playlists', JSON.stringify(this.playlists));
                     this.loadPlaylists();
-                    this.showNotification(`📥 Playlist "${playlistName}" importada! As músicas precisam ser carregadas manualmente.`);
+                    this.showNotification(`📥 Playlist "${playlistName}" imported! Songs need to be uploaded manually.`);
                 } catch (error) {
                     this.handleFileError(error, file.name);
                 }
